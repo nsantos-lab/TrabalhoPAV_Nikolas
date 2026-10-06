@@ -1,12 +1,13 @@
 # MODELA UM objeto
 # Definição de classe em python. class <nomedaclasse>:
 class Veiculo:
-    def __init__(self):
-        self.__modelo = None
-        self.__placa = None
-        self.__cor = None
-        self.__ano = None
-        self.__marca = None
+    def __init__(self, modelo=None, placa=None, cor=None, ano=None, marca=None):
+            # Definindo e "instanciando" atributos da classe
+            self.__modelo = modelo
+            self.__placa = placa
+            self.__cor = cor
+            self.__ano = ano
+            self.__marca = marca
 
     # Criar os métodos do veículo
     def acelerar(self):
@@ -32,12 +33,12 @@ class Veiculo:
 
 # Herança. class nomedaclasse(classequeherda)
 class Carro(Veiculo): # Carro herda de veiculo
-    def __init__(self):
+    def __init__(self, modelo=None):
         # Construtor da classe "mãe". Veiculo
-        super().__init__()
+        super().__init__(modelo=modelo)
         self.tamPortaMala = None
         self.numLugares = None
 
 # Instanciar um objeto carro usando o construtor padrão
-c = Carro()
+c = Carro(modelo="Uno")
 print(f"Modelo: {c.getModelo()}")
