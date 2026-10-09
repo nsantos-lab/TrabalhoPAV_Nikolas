@@ -9,6 +9,9 @@
   "port": 3306,
   "driver": "MySQL",
   "name": "TrabalhoPAV",
-  "database": "TrabalhoPAV",
-  "username": "root"
+  "database": "trabalhopav",
+  "username": "root",
+  "askForPassword": true,
+  "connectionMethod": "Server and Port",
+  "usePassword": "Ask on connect"
 }
