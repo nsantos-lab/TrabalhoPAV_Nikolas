@@ -12,8 +12,7 @@
             "driver": "MySQL",
             "name": "TrabalhoPAV",
             "database": "trabalhopav",
-            "username": "root",
-            "askForPassword": true
+            "username": "root"
         }
     ]
 }
