@@ -1,0 +1,2 @@
+SELECT DATABASE();
+SELECT * FROM cliente;
