@@ -1,13 +1,9 @@
 from flask import Flask
+
 app = Flask(__name__)
 
-@app.route('/')
+from scr.routes.routes import *
 
-def hello_world():
-    return 'Hello, World!' 
-
-def index():
-    return 'Index Page'
-
-app.run(debug=True)
+if __name__ == '__main__':  #serve para so executar o app.py quando for o arquivo principal 
+    app.run()
 
