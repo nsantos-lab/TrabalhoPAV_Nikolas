@@ -31,3 +31,46 @@ def get_tables():
     table_names = [table[0] for table in tables]
     return jsonify({"tables": table_names}),200  # jsonify converte uma lista em python para um objeto JSON, 
                                                  # que é o formato de dados usado em APIs RESTful
+
+@app.route('/cliente', methods = ['GET'])
+def get_clientes():
+    con = mysql.connector.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'root',
+        database = 'trabalhopav'
+    )
+    try:
+        cursor = con.cursor()
+        try:
+            cursor.execute("SELECT * FROM cliente;")
+            clientes = cursor.fetchall()
+        finally:
+            cursor.close()
+    finally:
+        con.close()
+    todos_clientes = [list(cliente) for cliente in clientes]
+    return jsonify({"cliente": todos_clientes}),200
+
+
+
+
+@app.route('/cliente/criar', methods = ['POST'])
+def create_cliente():
+    con = mysql.connector.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'root',
+        database = 'trabalhopav'
+    )
+    try:
+        cursor = con.cursor()
+        try:
+            cursor.execute("INSERT INTO cliente (nome, email) VALUES (%s, %s)", (nome, email))
+            clientes = cursor.fetchall()
+        finally:
+            cursor.close()
+    finally:
+        con.close()
+    todos_clientes = [list(cliente) for cliente in clientes]
+    return jsonify({"cliente": todos_clientes}),200
