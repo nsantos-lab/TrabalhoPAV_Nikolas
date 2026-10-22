@@ -2,6 +2,7 @@ Flask
 Flask-SQLAlchemy
 SQLAlchemy
 mysql-connector-python
+PyMySQL
 flask-restful
-marshmallow
+marshmallow<4 # precisa dessa versao para funcionar com flask-apispec
 flask-apispec

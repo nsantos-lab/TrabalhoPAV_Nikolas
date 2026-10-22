@@ -7,12 +7,13 @@ from src.entities.base import db
 def create_app() -> Flask:
     # Definindo qual é o banco de dados
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:admin@localhost:5432/academico'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:admin@localhost:3306/trabalhopav'
+
 
     db.init_app(app)
 
     # Flask API - Controllers/Endpoints - URL
-    api = Api(app, prefix="/academico")
+    api = Api(app, prefix="/trabalhopav")
     initialize_endpoints(api)
 
     return app

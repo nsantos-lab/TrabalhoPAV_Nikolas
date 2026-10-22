@@ -1,8 +1,7 @@
 from flask import Flask
 from sqlalchemy import Boolean, Column, DateTime, Integer, String, Date, func
 from flask_sqlalchemy import SQLAlchemy
-from manage import app
-from src.entities.base import *
+from src.entities.base import Base
 
 
 class Cliente(Base):
