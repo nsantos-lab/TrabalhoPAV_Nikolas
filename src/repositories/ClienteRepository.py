@@ -1,6 +1,6 @@
 from datetime import date
-from entities.cliente import Cliente
-from entities.base import db
+from src.entities.cliente import Cliente
+from src.entities.base import db
 
 def get_lista_clientes():
     clientes = db.session.query(Cliente).all()

@@ -1,5 +1,5 @@
 import mysql.connector
-from app import app
+from manage import app
 from flask import render_template, jsonify
 
 #rota para a página inicial
@@ -53,24 +53,3 @@ def get_clientes():
     return jsonify({"cliente": todos_clientes}),200
 
 
-
-
-@app.route('/cliente/criar', methods = ['POST'])
-def create_cliente():
-    con = mysql.connector.connect(
-        host = 'localhost',
-        user = 'root',
-        password = 'root',
-        database = 'trabalhopav'
-    )
-    try:
-        cursor = con.cursor()
-        try:
-            cursor.execute("INSERT INTO cliente (nome, email) VALUES (%s, %s)", (nome, email))
-            clientes = cursor.fetchall()
-        finally:
-            cursor.close()
-    finally:
-        con.close()
-    todos_clientes = [list(cliente) for cliente in clientes]
-    return jsonify({"cliente": todos_clientes}),200

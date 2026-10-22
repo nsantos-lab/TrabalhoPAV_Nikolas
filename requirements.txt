@@ -2,3 +2,6 @@ Flask
 Flask-SQLAlchemy
 SQLAlchemy
 mysql-connector-python
+flask-restful
+marshmallow
+flask-apispec

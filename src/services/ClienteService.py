@@ -1,5 +1,6 @@
-from repositories.ClienteRepository import get_lista_clientes, get_cliente, add_cliente, update_cliente, delete_cliente
-from entities.cliente import Cliente
+from src.repositories.ClienteRepository import get_lista_clientes, get_cliente, add_cliente, update_cliente, delete_cliente
+from src.entities.cliente import Cliente
+from marshmallow import ValidationError
 from datetime import date
 
 # Implementação das regras de negócio no cadastro do cliente. CRUD
@@ -12,11 +13,11 @@ def getCliente(cliente_id):
 
 def addCliente(nome: str, cpf: str, email: str, telefone: str, dados_publicos: bool, data_nascimento: date) -> Cliente:
     if(nome is None or nome == ''):
-        raise ValueError("Nome must not be null.")
+        raise ValidationError("Nome must not be null.")
     if(cpf is None or cpf == ''):
-        raise ValueError("CPF must not be null.")
+        raise ValidationError("CPF must not be null.")
     if(email is None or email == ''):
-        raise ValueError("Email must not be null.")
+        raise ValidationError("Email must not be null.")
     
     return add_cliente(nome, cpf, email, telefone, dados_publicos, data_nascimento)
 
