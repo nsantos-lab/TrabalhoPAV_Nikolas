@@ -10,7 +10,7 @@
             "server": "localhost",
             "port": 3306,
             "driver": "MySQL",
-            "name": "TrabalhoPAV",
+            "name": "TrabalhoPav",
             "database": "trabalhopav",
             "username": "root"
         }

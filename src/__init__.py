@@ -7,12 +7,13 @@ from src.entities.base import db
 def create_app() -> Flask:
     # Definindo qual é o banco de dados
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:admin@localhost:3306/trabalhopav'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:root@localhost:3306/trabalhopav'
 
 
     db.init_app(app)
 
     @app.get("/")
+
     @app.get("/trabalhopav")
     def homepage():
         return render_template("homepage.html")
