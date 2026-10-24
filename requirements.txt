@@ -6,3 +6,4 @@ PyMySQL
 flask-restful
 marshmallow<4 # precisa dessa versao para funcionar com flask-apispec
 flask-apispec
+requests
