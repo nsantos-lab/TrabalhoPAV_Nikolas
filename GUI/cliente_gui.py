@@ -332,8 +332,7 @@ class AcademicSystemApp:
                 "email": self.entry_email.get(),
                 "telefone": self.entry_telefone.get(),
                 "dados_publicos": self.entry_dados_publicos.get(),
-                "data_nascimento": self.entry_data_nascimento.get(),
-                "data_cadastro": self.entry_data_cadastro.get()
+                "data_nascimento": self.entry_data_nascimento.get()
             }
 
             response = requests.put(f"{API_URL}/{cliente_id}", data=data)

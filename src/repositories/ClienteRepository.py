@@ -12,12 +12,12 @@ def get_cliente(cliente_id):
 
 def add_cliente(nome: str, cpf: str, email: str, telefone: str, dados_publicos: bool, data_nascimento: date):
     cliente = Cliente(nome=nome, cpf=cpf, email=email, telefone=telefone, dados_publicos=dados_publicos, data_nascimento=data_nascimento)
-    # INSERT INTO Cliente values (id, nome, cpf, email, telefone, dados_publicos, data_nascimento)
+    # INSERT INTO Cliente values (nome, cpf, email, telefone, dados_publicos, data_nascimento)
     db.session.add(cliente)
     db.session.commit()
     return cliente
 
-def update_cliente(nome: str, id: int, cpf: str, email: str, telefone: str, dados_publicos: bool, data_nascimento: date) -> Cliente:
+def update_cliente(id: int, nome: str, cpf: str, email: str, telefone: str, dados_publicos: bool, data_nascimento: date) -> Cliente:
     cliente = db.session.query(Cliente).get(id)
     # Verifica se o cliente existe
     if(not cliente):
