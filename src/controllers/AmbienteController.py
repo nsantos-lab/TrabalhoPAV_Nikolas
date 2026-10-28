@@ -1,9 +1,7 @@
-import re
-
 from flask_restful import Resource, abort, request
 from flask_apispec import marshal_with, use_kwargs
 from flask_apispec.views import MethodResource
-from marshmallow import Schema, ValidationError, fields, validates
+from marshmallow import Schema, fields
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm.exc import UnmappedInstanceError
 
@@ -31,11 +29,6 @@ class AmbienteRequestSchema(Schema): # Transforma json em dict
     dados_publicos = fields.Bool()
     data_cadastro = fields.DateTime()
 
-    @validates("nome")
-    def validate_name(self, value):
-        if not re.match(pattern=r"^[a-zA-Z0-9_\s]+$", string=value):
-            raise ValidationError("Value must contain only alphanumeric and underscore characters.")
-
 class AmbienteItem(MethodResource, Resource):
     @marshal_with(AmbienteResponseSchema)
     def get(self, ambiente_id):
@@ -53,6 +46,7 @@ class AmbienteItem(MethodResource, Resource):
     def put(self, ambiente_id, **kwargs):
         try:
             # Camada de serviço para atualizar um ambiente
+            kwargs["cliente_id"] = kwargs.pop("cliente")
             ambiente = updateAmbiente(id=ambiente_id, **kwargs)
             return ambiente, 201
         except IntegrityError as err:
@@ -87,6 +81,7 @@ class AmbienteList(MethodResource, Resource):
     def post(self, **kwargs):
         try:
             # Camada de serviço para inserir um ambiente
+            kwargs["cliente_id"] = kwargs.pop("cliente")
             ambiente = addAmbiente(**kwargs)
             return ambiente, 201
         except IntegrityError as err:

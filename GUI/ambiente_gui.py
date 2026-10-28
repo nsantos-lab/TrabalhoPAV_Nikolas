@@ -9,7 +9,7 @@ class AcademicSystemApp:
 
         self.root = root
         self.root.title("Todos os Ambientes")
-        self.root.geometry("760x760")
+        self.root.geometry("760x850")
         self.root.configure(bg="#f5f6fa")
         self.root.resizable(False, False)
 
@@ -309,13 +309,14 @@ class AcademicSystemApp:
                 self.entry_densidade.delete(0, tk.END)
                 self.entry_densidade.insert(0, data.get("densidade", ""))
 
-
+                self.entry_dados_publicos.delete(0, tk.END)
+                self.entry_dados_publicos.insert(0, data.get("dados_publicos", ""))
 
                 self.entry_data_cadastro.delete(0, tk.END)
                 self.entry_data_cadastro.insert(0, data.get("data_cadastro", ""))
 
             else:
-                messagebox.showerror("Erro", "Cliente não encontrado")
+                messagebox.showerror("Erro", "Ambiente não encontrado")
 
         except Exception as e:
             messagebox.showerror("Erro", str(e))
@@ -324,18 +325,19 @@ class AcademicSystemApp:
 
         try:
             data = {
-                "nome": self.entry_nome.get(),
-                "cpf": self.entry_cpf.get(),
-                "email": self.entry_email.get(),
-                "telefone": self.entry_telefone.get(),
-                "dados_publicos": self.entry_dados_publicos.get(),
-                "data_nascimento": self.entry_data_nascimento.get()
+                "cliente": self.entry_cliente.get(),
+                "oxigenio": self.entry_oxigenio.get(),
+                "carbonico": self.entry_carbonico.get(),
+                "poluentes": self.entry_poluentes.get(),
+                "umidade": self.entry_umidade.get(),
+                "densidade": self.entry_densidade.get(),
+                "dados_publicos": self.entry_dados_publicos.get()
             }
 
             response = requests.post(API_URL, data=data)
 
             if response.status_code in [200, 201]:
-                messagebox.showinfo("Sucesso", "Cliente cadastrado com sucesso")
+                messagebox.showinfo("Sucesso", "Ambiente cadastrado com sucesso")
                 self.clear_fields()
             else:
                 messagebox.showerror("Erro", response.text)
@@ -346,21 +348,22 @@ class AcademicSystemApp:
     def call_api_put(self):
 
         try:
-            cliente_id = self.entry_id.get()
+            ambiente_id = self.entry_id.get()
 
             data = {
-                "nome": self.entry_nome.get(),
-                "cpf": self.entry_cpf.get(),
-                "email": self.entry_email.get(),
-                "telefone": self.entry_telefone.get(),
-                "dados_publicos": self.entry_dados_publicos.get(),
-                "data_nascimento": self.entry_data_nascimento.get()
+                "cliente": self.entry_cliente.get(),
+                "oxigenio": self.entry_oxigenio.get(),
+                "carbonico": self.entry_carbonico.get(),
+                "poluentes": self.entry_poluentes.get(),
+                "umidade": self.entry_umidade.get(),
+                "densidade": self.entry_densidade.get(),
+                "dados_publicos": self.entry_dados_publicos.get()
             }
 
-            response = requests.put(f"{API_URL}/{cliente_id}", data=data)
+            response = requests.put(f"{API_URL}/{ambiente_id}", data=data)
 
             if response.status_code in [200, 201]:
-                messagebox.showinfo("Sucesso", "Cliente atualizado com sucesso")
+                messagebox.showinfo("Sucesso", "Ambiente atualizado com sucesso")
                 self.clear_fields()
             else:
                 messagebox.showerror("Erro", response.text)
@@ -370,17 +373,17 @@ class AcademicSystemApp:
 
     def call_api_delete(self):
 
-        cliente_id = self.entry_id.get()
+        ambiente_id = self.entry_id.get()
 
-        if not cliente_id:
-            messagebox.showwarning("Aviso", "Informe o ID do cliente")
+        if not ambiente_id:
+            messagebox.showwarning("Aviso", "Informe o ID do ambiente")
             return
 
         try:
-            response = requests.delete(f"{API_URL}/{cliente_id}")
+            response = requests.delete(f"{API_URL}/{ambiente_id}")
 
             if response.status_code == 200:
-                messagebox.showinfo("Sucesso", "Cliente removido com sucesso")
+                messagebox.showinfo("Sucesso", "Ambiente removido com sucesso")
                 self.clear_fields()
             else:
                 messagebox.showerror("Erro", response.text)
