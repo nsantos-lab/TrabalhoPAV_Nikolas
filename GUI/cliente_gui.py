@@ -164,6 +164,25 @@ class AcademicSystemApp:
         )
         self.entry_data_nascimento.grid(row=6, column=1, padx=20, pady=10, ipady=8)
 
+        # ===== DATA_CADASTRO =====
+        lbl_data_cadastro = tk.Label(
+            form_frame,
+            text="Data de Cadastro:",
+            font=("Segoe UI", 14, "bold"),
+            bg="#f5f6fa",
+            fg="#2d3436"
+        )
+        lbl_data_cadastro.grid(row=7, column=0, sticky="w", pady=10)
+
+        self.entry_data_cadastro = tk.Entry(
+            form_frame,
+            font=("Segoe UI", 13),
+            relief="solid",
+            bd=1,
+            width=35
+        )
+        self.entry_data_cadastro.grid(row=7, column=1, padx=20, pady=10, ipady=8)
+
         # ===== BUTTON FRAME =====
         button_frame = tk.Frame(self.root, bg="#f5f6fa")
         button_frame.pack(pady=30)
@@ -236,6 +255,7 @@ class AcademicSystemApp:
         self.entry_telefone.delete(0, tk.END)
         self.entry_dados_publicos.delete(0, tk.END)
         self.entry_data_nascimento.delete(0, tk.END)
+        self.entry_data_cadastro.delete(0, tk.END)
 
     def call_api_get(self):
 
@@ -269,6 +289,9 @@ class AcademicSystemApp:
                 self.entry_data_nascimento.delete(0, tk.END)
                 self.entry_data_nascimento.insert(0, data.get("data_nascimento", ""))
 
+                self.entry_data_cadastro.delete(0, tk.END)
+                self.entry_data_cadastro.insert(0, data.get("data_cadastro", ""))
+
             else:
                 messagebox.showerror("Erro", "Cliente não encontrado")
 
@@ -279,7 +302,6 @@ class AcademicSystemApp:
 
         try:
             data = {
-                #"id": int(self.entry_id.get()),
                 "nome": self.entry_nome.get(),
                 "cpf": self.entry_cpf.get(),
                 "email": self.entry_email.get(),
@@ -310,7 +332,8 @@ class AcademicSystemApp:
                 "email": self.entry_email.get(),
                 "telefone": self.entry_telefone.get(),
                 "dados_publicos": self.entry_dados_publicos.get(),
-                "data_nascimento": self.entry_data_nascimento.get()
+                "data_nascimento": self.entry_data_nascimento.get(),
+                "data_cadastro": self.entry_data_cadastro.get()
             }
 
             response = requests.put(f"{API_URL}/{cliente_id}", data=data)
