@@ -279,14 +279,14 @@ class AcademicSystemApp:
 
     def call_api_get(self):
 
-        cliente_id = self.entry_id.get()
+        ambiente_id = self.entry_id.get()
 
-        if not cliente_id:
+        if not ambiente_id:
             messagebox.showwarning("Aviso", "Informe o ID do ambiente")
             return
 
         try:
-            response = requests.get(f"{API_URL}/{cliente_id}")
+            response = requests.get(f"{API_URL}/{ambiente_id}")
 
             if response.status_code == 200:
                 data = response.json()

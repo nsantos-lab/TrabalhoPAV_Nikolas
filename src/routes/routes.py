@@ -2,6 +2,7 @@ from flask import Flask, jsonify, render_template
 import mysql.connector
 from src.controllers.ClienteController import ClienteList, ClienteItem
 from src.controllers.AmbienteController import AmbienteList, AmbienteItem
+from src.controllers.Ambiente_TempoController import Ambiente_TempoList, Ambiente_TempoItem
 
 def initialize_pages(app: Flask) -> None:
     @app.get("/homepage")
@@ -40,5 +41,5 @@ def initialize_endpoints(api):
     api.add_resource(ClienteItem, "/clientes/<int:cliente_id>")
     api.add_resource(AmbienteList, "/ambientes")
     api.add_resource(AmbienteItem, "/ambientes/<int:ambiente_id>")
-
-
+    api.add_resource(Ambiente_TempoList, "/ambientes_tempo")
+    api.add_resource(Ambiente_TempoItem, "/ambientes_tempo/<int:ambiente_tempo_id>")
