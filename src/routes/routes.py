@@ -5,6 +5,7 @@ from src.controllers.ClienteController import ClienteList, ClienteItem
 from src.controllers.AmbienteController import AmbienteList, AmbienteItem
 from src.controllers.Ambiente_TempoController import Ambiente_TempoList, Ambiente_TempoItem
 from src.controllers.BancoController import BancoList, BancoItem
+from src.controllers.ProdutoController import ProdutoList, ProdutoItem
 
 def initialize_pages(app: Flask) -> None:
     @app.get("/homepage")
@@ -47,3 +48,5 @@ def initialize_endpoints(api):
     api.add_resource(Ambiente_TempoItem, "/ambientes_tempo/<int:ambiente_tempo_id>")
     api.add_resource(BancoList, "/bancos")
     api.add_resource(BancoItem, "/bancos/<int:id_banco>")
+    api.add_resource(ProdutoList, "/produtos")
+    api.add_resource(ProdutoItem, "/produtos/<int:produto_id>")
