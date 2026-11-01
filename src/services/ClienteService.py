@@ -18,6 +18,13 @@ def addCliente(nome: str, cpf: str, email: str, telefone: str, dados_publicos: b
         raise ValidationError("CPF must not be null.")
     if(email is None or email == ''):
         raise ValidationError("Email must not be null.")
+    if(data_nascimento is None or data_nascimento == ''):
+        raise ValidationError("Data de nascimento must not be null.")
+    if(data_nascimento > date.today()):
+        raise ValidationError("Data de nascimento must not be in the future.")
+    if(data_nascimento < date(1906, 1, 1)):
+        raise ValidationError("Data de nascimento must not be before 1906-01-01.")
+        #que seria ter mais de 120 anos.
     
     return add_cliente(nome, cpf, email, telefone, dados_publicos, data_nascimento)
 

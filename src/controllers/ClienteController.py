@@ -6,6 +6,7 @@ from flask_apispec.views import MethodResource
 from marshmallow import Schema, ValidationError, fields, validates
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm.exc import UnmappedInstanceError
+
 from src.services.ClienteService import getClientes, getCliente, addCliente, updateCliente, deleteCliente
 
 class ClienteResponseSchema(Schema): # Transforma dict em json
@@ -32,6 +33,10 @@ class ClienteRequestSchema(Schema): # Transforma json em dict
     def validate_name(self, value):
         if not re.match(pattern=r"^[a-zA-Z0-9_\s]+$", string=value):
             raise ValidationError("Value must contain only alphanumeric and underscore characters.")
+    @validates("cpf")
+    def validate_cpf(self, value):
+        if not re.match(pattern=r"^[0-9]{11}$", string=value):
+            raise ValidationError("Value must be in the format 00000000000.")
 
 class ClienteItem(MethodResource, Resource):
     @marshal_with(ClienteResponseSchema)

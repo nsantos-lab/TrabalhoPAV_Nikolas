@@ -380,6 +380,10 @@ class AcademicSystemApp:
             return
 
         try:
+            if not self.ambiente_permite_operacao(ambiente_id):
+                messagebox.showwarning("Aviso", "Os dados desse ambiente são privados, logo vc nao pode deletar.")
+                return
+            
             response = requests.delete(f"{API_URL}/{ambiente_id}")
 
             if response.status_code == 200:
@@ -390,6 +394,26 @@ class AcademicSystemApp:
 
         except Exception as e:
             messagebox.showerror("Erro", str(e))
+
+
+    def ambiente_permite_operacao(self, ambiente_id):
+       
+        response = requests.get(f"{API_URL}/{ambiente_id}",timeout=5)
+        ambiente = response.json()
+
+        if "dados_publicos" not in ambiente:
+            messagebox.showerror("Erro", "Campo 'dados_publicos' não encontrado na resposta da API")
+            return False
+
+        if (ambiente["dados_publicos"] == True):
+            #messagebox.showwarning("True", "só")
+            return True
+        if (ambiente["dados_publicos"] == False):
+            #messagebox.showwarning("False", "só")
+            return False
+        
+        messagebox.showerror("Putz", "nao deveria chegar aqui, mas chegou")
+        return False
 
 
 if __name__ == "__main__":
