@@ -3,6 +3,7 @@ from tkinter import messagebox
 import requests
 
 API_URL = "http://127.0.0.1:5000/trabalhopav/produtos"
+API_URL_AMBIENTE = "http://127.0.0.1:5000/trabalhopav/ambientes"
 
 class AcademicSystemApp:
     def __init__(self, root):
@@ -206,6 +207,10 @@ class AcademicSystemApp:
             return
 
         try:
+            if not self.produto_permite_operacao(produto_id):
+                messagebox.showwarning("Aviso", "Os dados desse produto pertencem a um ambiente privado, logo vc nao pode buscar.")
+                return
+            
             response = requests.get(f"{API_URL}/{produto_id}")
 
             if response.status_code == 200:
@@ -232,6 +237,11 @@ class AcademicSystemApp:
     def call_api_post(self):
 
         try:
+            ambiente_id = self.entry_ambiente.get()
+            if not self.ambiente_permite_operacao(ambiente_id):
+                messagebox.showwarning("Aviso", "Os dados desse produto pertencem a um ambiente privado, logo vc nao pode cadastrar.")
+                return
+            
             data = {
                 "id_ambiente": self.entry_ambiente.get(),
                 "tipo": self.entry_tipo.get(),
@@ -254,6 +264,9 @@ class AcademicSystemApp:
 
         try:
             produto_id = self.entry_id.get()
+            if not self.produto_permite_operacao(produto_id):
+                messagebox.showwarning("Aviso", "Os dados desse produto pertencem a um ambiente privado, logo vc nao pode atualizar.")
+                return
 
             data = {
                 "id_ambiente": self.entry_ambiente.get(),
@@ -282,6 +295,10 @@ class AcademicSystemApp:
             return
 
         try:
+            if not self.produto_permite_operacao(produto_id):
+                messagebox.showwarning("Aviso", "Os dados desse produto pertencem a um ambiente privado, logo vc nao pode deletar.")
+                return
+            
             response = requests.delete(f"{API_URL}/{produto_id}")
 
             if response.status_code == 200:
@@ -293,6 +310,44 @@ class AcademicSystemApp:
         except Exception as e:
             messagebox.showerror("Erro", str(e))
 
+    def produto_permite_operacao(self, produto_id):
+    
+        response = requests.get(f"{API_URL}/{produto_id}",timeout=5)
+
+        produto1 = response.json()
+
+        ambiente_id = produto1.get("id_ambiente")
+        #messagebox.showwarning("Aviso", "Ambiente ID: " + str(ambiente_id))
+
+        response1 = requests.get(f"{API_URL_AMBIENTE}/{ambiente_id}",timeout=5)
+        
+        ambiente = response1.json()
+
+        if (ambiente["dados_publicos"] == True):
+            #messagebox.showwarning("True", "só")
+            return True
+        if (ambiente["dados_publicos"] == False):
+            #messagebox.showwarning("False", "só")
+            return False
+        
+        messagebox.showerror("Putz", "nao deveria chegar aqui, mas chegou")
+        return False
+
+    def ambiente_permite_operacao(self, ambiente_id):
+           
+            response = requests.get(f"{API_URL_AMBIENTE}/{ambiente_id}",timeout=5)
+            ambiente = response.json()
+    
+            if (ambiente["dados_publicos"] == True):
+                #messagebox.showwarning("True", "só")
+                return True
+            if (ambiente["dados_publicos"] == False):
+                #messagebox.showwarning("False", "só")
+                return False
+            
+            messagebox.showerror("Putz", "nao deveria chegar aqui, mas chegou")
+            return False
+    
 
 if __name__ == "__main__":
 
