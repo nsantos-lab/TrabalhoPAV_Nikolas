@@ -9,7 +9,7 @@ class AcademicSystemApp:
 
         self.root = root
         self.root.title("Todos os Clientes")
-        self.root.geometry("760x760")
+        self.root.geometry("760x860")
         self.root.configure(bg="#f5f6fa")
         self.root.resizable(False, False)
 
@@ -145,6 +145,25 @@ class AcademicSystemApp:
         )
         self.entry_dados_publicos.grid(row=5, column=1, padx=20, pady=10, ipady=8)
 
+        # ===== SENHA =====
+        lbl_senha = tk.Label(
+            form_frame,
+            text="Senha:",
+            font=("Segoe UI", 14, "bold"),
+            bg="#f5f6fa",
+            fg="#2d3436"
+        )
+        lbl_senha.grid(row=6, column=0, sticky="w", pady=10)
+
+        self.entry_senha = tk.Entry(
+            form_frame,
+            font=("Segoe UI", 13),
+            relief="solid",
+            bd=1,
+            width=35
+        )
+        self.entry_senha.grid(row=6, column=1, padx=20, pady=10, ipady=8)
+
                 # ===== DATA_NASCIMENTO =====
         lbl_data_nascimento = tk.Label(
             form_frame,
@@ -153,7 +172,7 @@ class AcademicSystemApp:
             bg="#f5f6fa",
             fg="#2d3436"
         )
-        lbl_data_nascimento.grid(row=6, column=0, sticky="w", pady=10)
+        lbl_data_nascimento.grid(row=7, column=0, sticky="w", pady=10)
 
         self.entry_data_nascimento = tk.Entry(
             form_frame,
@@ -162,7 +181,7 @@ class AcademicSystemApp:
             bd=1,
             width=35
         )
-        self.entry_data_nascimento.grid(row=6, column=1, padx=20, pady=10, ipady=8)
+        self.entry_data_nascimento.grid(row=7, column=1, padx=20, pady=10, ipady=8)
 
         # ===== DATA_CADASTRO =====
         lbl_data_cadastro = tk.Label(
@@ -172,7 +191,7 @@ class AcademicSystemApp:
             bg="#f5f6fa",
             fg="#2d3436"
         )
-        lbl_data_cadastro.grid(row=7, column=0, sticky="w", pady=10)
+        lbl_data_cadastro.grid(row=8, column=0, sticky="w", pady=10)
 
         self.entry_data_cadastro = tk.Entry(
             form_frame,
@@ -181,7 +200,7 @@ class AcademicSystemApp:
             bd=1,
             width=35
         )
-        self.entry_data_cadastro.grid(row=7, column=1, padx=20, pady=10, ipady=8)
+        self.entry_data_cadastro.grid(row=8, column=1, padx=20, pady=10, ipady=8)
 
         # ===== BUTTON FRAME =====
         button_frame = tk.Frame(self.root, bg="#f5f6fa")
@@ -254,6 +273,7 @@ class AcademicSystemApp:
         self.entry_email.delete(0, tk.END)
         self.entry_telefone.delete(0, tk.END)
         self.entry_dados_publicos.delete(0, tk.END)
+        self.entry_senha.delete(0, tk.END)
         self.entry_data_nascimento.delete(0, tk.END)
         self.entry_data_cadastro.delete(0, tk.END)
 
@@ -286,6 +306,9 @@ class AcademicSystemApp:
                 self.entry_dados_publicos.delete(0, tk.END)
                 self.entry_dados_publicos.insert(0, data.get("dados_publicos", ""))
 
+                self.entry_senha.delete(0, tk.END)
+                self.entry_senha.insert(0, data.get("senha", ""))
+
                 self.entry_data_nascimento.delete(0, tk.END)
                 self.entry_data_nascimento.insert(0, data.get("data_nascimento", ""))
 
@@ -307,6 +330,7 @@ class AcademicSystemApp:
                 "email": self.entry_email.get(),
                 "telefone": self.entry_telefone.get(),
                 "dados_publicos": self.entry_dados_publicos.get(),
+                "senha": self.entry_senha.get(),
                 "data_nascimento": self.entry_data_nascimento.get()
             }
 
@@ -332,6 +356,7 @@ class AcademicSystemApp:
                 "email": self.entry_email.get(),
                 "telefone": self.entry_telefone.get(),
                 "dados_publicos": self.entry_dados_publicos.get(),
+                "senha": self.entry_senha.get(),
                 "data_nascimento": self.entry_data_nascimento.get()
             }
 

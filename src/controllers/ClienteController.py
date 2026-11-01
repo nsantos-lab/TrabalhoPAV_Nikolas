@@ -16,6 +16,7 @@ class ClienteResponseSchema(Schema): # Transforma dict em json
     email = fields.Str()
     telefone = fields.Str()
     dados_publicos = fields.Bool()
+    senha = fields.Str()
     data_nascimento = fields.Date()
     data_cadastro = fields.DateTime()
 
@@ -26,6 +27,7 @@ class ClienteRequestSchema(Schema): # Transforma json em dict
     email = fields.Str()
     telefone = fields.Str()
     dados_publicos = fields.Bool()
+    senha = fields.Str()
     data_nascimento = fields.Date()
     data_cadastro = fields.DateTime()
 

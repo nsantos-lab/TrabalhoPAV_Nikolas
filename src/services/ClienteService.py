@@ -11,13 +11,15 @@ def getClientes():
 def getCliente(cliente_id):
     return get_cliente(cliente_id)
 
-def addCliente(nome: str, cpf: str, email: str, telefone: str, dados_publicos: bool, data_nascimento: date) -> Cliente:
+def addCliente(nome: str, cpf: str, email: str, telefone: str, dados_publicos: bool, senha: str, data_nascimento: date) -> Cliente:
     if(nome is None or nome == ''):
         raise ValidationError("Nome must not be null.")
     if(cpf is None or cpf == ''):
         raise ValidationError("CPF must not be null.")
     if(email is None or email == ''):
         raise ValidationError("Email must not be null.")
+    if(senha is None or senha == ''):
+        raise ValidationError("Senha must not be null.")
     if(data_nascimento is None or data_nascimento == ''):
         raise ValidationError("Data de nascimento must not be null.")
     if(data_nascimento > date.today()):
@@ -26,10 +28,10 @@ def addCliente(nome: str, cpf: str, email: str, telefone: str, dados_publicos: b
         raise ValidationError("Data de nascimento must not be before 1906-01-01.")
         #que seria ter mais de 120 anos.
     
-    return add_cliente(nome, cpf, email, telefone, dados_publicos, data_nascimento)
+    return add_cliente(nome, cpf, email, telefone, dados_publicos, senha, data_nascimento)
 
-def updateCliente(id: int, nome: str, cpf: str, email: str, telefone: str, dados_publicos: bool, data_nascimento: date):
-    return update_cliente(id=id, nome=nome, cpf=cpf, email=email, telefone=telefone, dados_publicos=dados_publicos, data_nascimento=data_nascimento)
+def updateCliente(id: int, nome: str, cpf: str, email: str, telefone: str, dados_publicos: bool, senha: str, data_nascimento: date):
+    return update_cliente(id=id, nome=nome, cpf=cpf, email=email, telefone=telefone, dados_publicos=dados_publicos, senha=senha, data_nascimento=data_nascimento)
 
 def deleteCliente(cliente_id):
     return delete_cliente(cliente_id)

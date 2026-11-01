@@ -1,9 +1,11 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 import requests
 
-API_URL = "http://127.0.0.1:5000/trabalhopav/produtos"
+API_URL_PRODUTO = "http://127.0.0.1:5000/trabalhopav/produtos"
 API_URL_AMBIENTE = "http://127.0.0.1:5000/trabalhopav/ambientes"
+API_URL_CLIENTE = "http://127.0.0.1:5000/trabalhopav/clientes"
+API_URL_BANCO = "http://127.0.0.1:5000/trabalhopav/bancos"
 
 class AcademicSystemApp:
     def __init__(self, root):
@@ -208,10 +210,11 @@ class AcademicSystemApp:
 
         try:
             if not self.produto_permite_operacao(produto_id):
-                messagebox.showwarning("Aviso", "Os dados desse produto pertencem a um ambiente privado, logo vc nao pode buscar.")
+                messagebox.showwarning("Aviso", "Os dados desse produto pertencem a um ambiente privado, " \
+                                        "logo vc nao pode buscar.")
                 return
             
-            response = requests.get(f"{API_URL}/{produto_id}")
+            response = requests.get(f"{API_URL_PRODUTO}/{produto_id}")
 
             if response.status_code == 200:
                 data = response.json()
@@ -239,7 +242,8 @@ class AcademicSystemApp:
         try:
             ambiente_id = self.entry_ambiente.get()
             if not self.ambiente_permite_operacao(ambiente_id):
-                messagebox.showwarning("Aviso", "Os dados desse produto pertencem a um ambiente privado, logo vc nao pode cadastrar.")
+                messagebox.showwarning("Aviso", "Os dados desse produto pertencem a um ambiente privado, " \
+                "logo vc nao pode cadastrar.")
                 return
             
             data = {
@@ -249,7 +253,7 @@ class AcademicSystemApp:
                 "potencia": self.entry_potencia.get()
             }
 
-            response = requests.post(API_URL, data=data)
+            response = requests.post(API_URL_PRODUTO, data=data)
 
             if response.status_code in [200, 201]:
                 messagebox.showinfo("Sucesso", "Produto cadastrado com sucesso")
@@ -275,7 +279,7 @@ class AcademicSystemApp:
                 "potencia": self.entry_potencia.get()
             }
 
-            response = requests.put(f"{API_URL}/{produto_id}", data=data)
+            response = requests.put(f"{API_URL_PRODUTO}/{produto_id}", data=data)
 
             if response.status_code in [200, 201]:
                 messagebox.showinfo("Sucesso", "Produto atualizado com sucesso")
@@ -299,7 +303,7 @@ class AcademicSystemApp:
                 messagebox.showwarning("Aviso", "Os dados desse produto pertencem a um ambiente privado, logo vc nao pode deletar.")
                 return
             
-            response = requests.delete(f"{API_URL}/{produto_id}")
+            response = requests.delete(f"{API_URL_PRODUTO}/{produto_id}")
 
             if response.status_code == 200:
                 messagebox.showinfo("Sucesso", "Produto removido com sucesso")
@@ -312,7 +316,7 @@ class AcademicSystemApp:
 
     def produto_permite_operacao(self, produto_id):
     
-        response = requests.get(f"{API_URL}/{produto_id}",timeout=5)
+        response = requests.get(f"{API_URL_PRODUTO}/{produto_id}",timeout=5)
 
         produto1 = response.json()
 
@@ -347,7 +351,22 @@ class AcademicSystemApp:
             
             messagebox.showerror("Putz", "nao deveria chegar aqui, mas chegou")
             return False
-    
+
+    def pedir_validar_senha(self, ambiente_id):
+        senha = simpledialog.askstring(
+        "Senha", 
+        "Digite a senha do cliente ", 
+        show="*",
+        parent=self.root)
+
+        if senha is None:
+            return False
+
+        response = requests.get(f"{API_URL_AMBIENTE}/{ambiente_id}",timeout=5)
+        ambiente = response.json()
+        cliente_id = ambiente.get("id_cliente")
+        pass
+        
 
 if __name__ == "__main__":
 
