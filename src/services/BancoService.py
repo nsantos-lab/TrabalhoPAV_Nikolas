@@ -1,4 +1,4 @@
-from src.repositories.BancoRepository import get_lista_bancos, get_banco, add_banco, update_banco, delete_banco
+from src.repositories.BancoRepository import get_lista_bancos, get_banco, add_banco, update_banco, delete_banco, get_banco_by_cliente
 from src.entities.banco import Banco
 from marshmallow import ValidationError
 from datetime import date
@@ -26,3 +26,6 @@ def updateBanco(id_banco: int, id_cliente: int, dinheiro: float, senha: str):
 
 def deleteBanco(id_banco):
     return delete_banco(id_banco)
+
+def getBancoByCliente(id_cliente):
+    return get_banco_by_cliente(id_cliente)

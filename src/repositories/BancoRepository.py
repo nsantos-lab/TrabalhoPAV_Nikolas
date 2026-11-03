@@ -35,3 +35,7 @@ def delete_banco(id_banco):
     db.session.delete(banco)
     db.session.commit()
     return banco
+
+def get_banco_by_cliente(id_cliente):
+    banco = db.session.query(Banco).filter_by(id_cliente=id_cliente).first()
+    return banco

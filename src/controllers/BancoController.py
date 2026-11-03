@@ -7,7 +7,7 @@ from marshmallow import Schema, ValidationError, fields, validates
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm.exc import UnmappedInstanceError
 
-from src.services.BancoService import getBancos, getBanco, addBanco, updateBanco, deleteBanco
+from src.services.BancoService import getBancos, getBanco, addBanco, updateBanco, deleteBanco, getBancoByCliente
 
 class BancoResponseSchema(Schema): # Transforma dict em json
     id_banco = fields.Int()
@@ -58,6 +58,17 @@ class BancoItem(MethodResource, Resource):
             if not banco:
                 abort(404, message="Resource not found")
             return 204
+        except OperationalError:
+            abort(500, message="Internal Server Error")
+
+class BancoByCliente(MethodResource, Resource):
+    @marshal_with(BancoResponseSchema)
+    def get(self, id_cliente):
+        try:
+            banco = getBancoByCliente(id_cliente)
+            if not banco:
+                abort(404, message="Resource not found")
+            return banco, 200
         except OperationalError:
             abort(500, message="Internal Server Error")
 
