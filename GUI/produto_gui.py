@@ -6,6 +6,7 @@ API_URL_PRODUTO = "http://127.0.0.1:5000/trabalhopav/produtos"
 API_URL_AMBIENTE = "http://127.0.0.1:5000/trabalhopav/ambientes"
 API_URL_CLIENTE = "http://127.0.0.1:5000/trabalhopav/clientes"
 API_URL_BANCO = "http://127.0.0.1:5000/trabalhopav/bancos"
+API_URL_BANCO_BY_CLIENTE = "http://127.0.0.1:5000/trabalhopav/bancos/cliente"
 
 class AcademicSystemApp:
     def __init__(self, root):

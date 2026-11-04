@@ -1,8 +1,11 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 import requests
 
-API_URL = "http://127.0.0.1:5000/trabalhopav/clientes"
+API_URL_CLIENTE = "http://127.0.0.1:5000/trabalhopav/clientes"
+API_URL_BANCO = "http://127.0.0.1:5000/trabalhopav/bancos"
+API_URL_BANCO_BY_CLIENTE = "http://127.0.0.1:5000/trabalhopav/bancos/cliente"
+
 
 class AcademicSystemApp:
     def __init__(self, root):
@@ -145,25 +148,6 @@ class AcademicSystemApp:
         )
         self.entry_dados_publicos.grid(row=5, column=1, padx=20, pady=10, ipady=8)
 
-        # ===== SENHA =====
-        lbl_senha = tk.Label(
-            form_frame,
-            text="Senha:",
-            font=("Segoe UI", 14, "bold"),
-            bg="#f5f6fa",
-            fg="#2d3436"
-        )
-        lbl_senha.grid(row=6, column=0, sticky="w", pady=10)
-
-        self.entry_senha = tk.Entry(
-            form_frame,
-            font=("Segoe UI", 13),
-            relief="solid",
-            bd=1,
-            width=35
-        )
-        self.entry_senha.grid(row=6, column=1, padx=20, pady=10, ipady=8)
-
                 # ===== DATA_NASCIMENTO =====
         lbl_data_nascimento = tk.Label(
             form_frame,
@@ -273,7 +257,6 @@ class AcademicSystemApp:
         self.entry_email.delete(0, tk.END)
         self.entry_telefone.delete(0, tk.END)
         self.entry_dados_publicos.delete(0, tk.END)
-        self.entry_senha.delete(0, tk.END)
         self.entry_data_nascimento.delete(0, tk.END)
         self.entry_data_cadastro.delete(0, tk.END)
 
@@ -286,7 +269,12 @@ class AcademicSystemApp:
             return
 
         try:
-            response = requests.get(f"{API_URL}/{cliente_id}")
+            response = requests.get(f"{API_URL_CLIENTE}/{cliente_id}")
+            object = response.json()
+            dados_publicos1 = object.get("dados_publicos")
+            if dados_publicos1 is False:
+                if not self.pede_senha_id_cliente(cliente_id):
+                    return
 
             if response.status_code == 200:
                 data = response.json()
@@ -305,9 +293,6 @@ class AcademicSystemApp:
 
                 self.entry_dados_publicos.delete(0, tk.END)
                 self.entry_dados_publicos.insert(0, data.get("dados_publicos", ""))
-
-                self.entry_senha.delete(0, tk.END)
-                self.entry_senha.insert(0, data.get("senha", ""))
 
                 self.entry_data_nascimento.delete(0, tk.END)
                 self.entry_data_nascimento.insert(0, data.get("data_nascimento", ""))
@@ -330,11 +315,10 @@ class AcademicSystemApp:
                 "email": self.entry_email.get(),
                 "telefone": self.entry_telefone.get(),
                 "dados_publicos": self.entry_dados_publicos.get(),
-                "senha": self.entry_senha.get(),
                 "data_nascimento": self.entry_data_nascimento.get()
             }
 
-            response = requests.post(API_URL, data=data)
+            response = requests.post(API_URL_CLIENTE, data=data)
 
             if response.status_code in [200, 201]:
                 messagebox.showinfo("Sucesso", "Cliente cadastrado com sucesso")
@@ -346,9 +330,15 @@ class AcademicSystemApp:
             messagebox.showerror("Erro", str(e))
 
     def call_api_put(self):
-
         try:
             cliente_id = self.entry_id.get()
+
+            response = requests.get(f"{API_URL_CLIENTE}/{cliente_id}")
+            object = response.json()
+            dados_publicos1 = object.get("dados_publicos")
+            if dados_publicos1 is False:
+                if not self.pede_senha_id_cliente(cliente_id):
+                    return
 
             data = {
                 "nome": self.entry_nome.get(),
@@ -356,11 +346,10 @@ class AcademicSystemApp:
                 "email": self.entry_email.get(),
                 "telefone": self.entry_telefone.get(),
                 "dados_publicos": self.entry_dados_publicos.get(),
-                "senha": self.entry_senha.get(),
                 "data_nascimento": self.entry_data_nascimento.get()
             }
 
-            response = requests.put(f"{API_URL}/{cliente_id}", data=data)
+            response = requests.put(f"{API_URL_CLIENTE}/{cliente_id}", data=data)
 
             if response.status_code in [200, 201]:
                 messagebox.showinfo("Sucesso", "Cliente atualizado com sucesso")
@@ -379,8 +368,15 @@ class AcademicSystemApp:
             messagebox.showwarning("Aviso", "Informe o ID do cliente")
             return
 
+        response = requests.get(f"{API_URL_CLIENTE}/{cliente_id}")
+        object = response.json()
+        dados_publicos1 = object.get("dados_publicos")
+        if dados_publicos1 is False:
+            if not self.pede_senha_id_cliente(cliente_id):
+                return
+
         try:
-            response = requests.delete(f"{API_URL}/{cliente_id}")
+            response = requests.delete(f"{API_URL_CLIENTE}/{cliente_id}")
 
             if response.status_code == 200:
                 messagebox.showinfo("Sucesso", "Cliente removido com sucesso")
@@ -391,6 +387,24 @@ class AcademicSystemApp:
         except Exception as e:
             messagebox.showerror("Erro", str(e))
 
+    def pede_senha_id_cliente(self, cliente_id):
+        senha_digitada = simpledialog.askstring(
+            "Senha", 
+            "Digite a senha do cliente ", 
+            show="*",
+            parent=self.root)
+        response1 = requests.get(f"{API_URL_BANCO_BY_CLIENTE}/{cliente_id}")
+        if response1.status_code != 200:
+            messagebox.showerror("Erro", "Falha ao obter banco.")
+            return False
+        object1 = response1.json()
+        senha_correta = object1.get("senha")
+        if senha_digitada == senha_correta:
+            messagebox.showinfo("Sucesso", "Senha correta. Acesso permitido.")
+            return True
+        else:
+            messagebox.showerror("Erro", "Senha incorreta. Acesso negado.")
+            return False
 
 if __name__ == "__main__":
 
