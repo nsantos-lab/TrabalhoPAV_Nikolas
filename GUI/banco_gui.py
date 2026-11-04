@@ -1,8 +1,9 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 import requests
 
-API_URL = "http://127.0.0.1:5000/trabalhopav/bancos"
+API_URL_BANCO = "http://127.0.0.1:5000/trabalhopav/bancos"
+API_URL_CLIENTE = "http://127.0.0.1:5000/trabalhopav/clientes"
 
 class AcademicSystemApp:
     def __init__(self, root):
@@ -185,8 +186,17 @@ class AcademicSystemApp:
             messagebox.showwarning("Aviso", "Informe o ID do banco")
             return
 
+        id_cliente = self.get_cliente(id_banco)
+        #messagebox.showinfo("Info", f"ID do cliente: {id_cliente}")
+
+        if not self.cliente_publico(id_cliente):
+            #messagebox.showwarning("Aviso", "Cliente não é público. Não é possível buscar o banco.")
+            if not self.pede_senha(id_banco):
+                #messagebox.showwarning("Aviso", "Senha incorreta. Não é possível buscar o banco.")
+                return
+
         try:
-            response = requests.get(f"{API_URL}/{id_banco}")
+            response = requests.get(f"{API_URL_BANCO}/{id_banco}")
 
             if response.status_code == 200:
                 data = response.json()
@@ -215,7 +225,7 @@ class AcademicSystemApp:
                 "senha": self.entry_senha.get()
             }
 
-            response = requests.post(API_URL, data=data)
+            response = requests.post(API_URL_BANCO, data=data)
 
             if response.status_code in [200, 201]:
                 messagebox.showinfo("Sucesso", "Banco cadastrado com sucesso")
@@ -227,6 +237,13 @@ class AcademicSystemApp:
             messagebox.showerror("Erro", str(e))
 
     def call_api_put(self):
+        id_cliente = self.get_cliente(self.entry_id.get())
+        
+        if not self.cliente_publico(id_cliente):
+            messagebox.showwarning("Aviso", "Cliente não é público. Não é possível buscar o banco.")
+            if not self.pede_senha(self.entry_id.get()):
+                messagebox.showwarning("Aviso", "Senha incorreta. Não é possível buscar o banco.")
+                return
 
         try:
             id_banco = self.entry_id.get()
@@ -237,7 +254,7 @@ class AcademicSystemApp:
                 "senha": self.entry_senha.get()
             }
 
-            response = requests.put(f"{API_URL}/{id_banco}", data=data)
+            response = requests.put(f"{API_URL_BANCO}/{id_banco}", data=data)
 
             if response.status_code in [200, 201]:
                 messagebox.showinfo("Sucesso", "Banco atualizado com sucesso")
@@ -256,8 +273,16 @@ class AcademicSystemApp:
             messagebox.showwarning("Aviso", "Informe o ID do banco")
             return
 
+        id_cliente = self.get_cliente(id_banco)
+        #messagebox.showinfo("Info", "id do cliente sendo pego")
+
+        if not self.cliente_publico(id_cliente):
+            #messagebox.showwarning("Aviso", "Cliente não é público. Não é possível remover o banco.")
+            if not self.pede_senha(id_banco):
+                return
+
         try:
-            response = requests.delete(f"{API_URL}/{id_banco}")
+            response = requests.delete(f"{API_URL_BANCO}/{id_banco}")
 
             if response.status_code == 200:
                 messagebox.showinfo("Sucesso", "Banco removido com sucesso")
@@ -268,6 +293,54 @@ class AcademicSystemApp:
         except Exception as e:
             messagebox.showerror("Erro", str(e))
 
+    def cliente_publico(self, cliente_id):
+        response = requests.get(f"{API_URL_CLIENTE}/{cliente_id}", timeout=5)
+        cliente = response.json()
+
+        if "dados_publicos" not in cliente:
+            messagebox.showerror("Erro", "Campo 'dados_publicos' não encontrado na resposta da API")
+            return False
+
+        if (cliente["dados_publicos"] == True):
+            #messagebox.showwarning("True", "só")
+            return True
+        if (cliente["dados_publicos"] == False):
+            #messagebox.showwarning("False", "só")
+            return False
+        
+        messagebox.showerror("Putz", "nao deveria chegar aqui, mas chegou")
+        return False
+
+    def get_cliente(self, banco_id):
+        response = requests.get(f"{API_URL_BANCO}/{banco_id}", timeout=5)
+        banco = response.json()
+        cliente_id = banco.get("id_cliente")
+
+        if not cliente_id:
+            messagebox.showerror("Erro", "Campo 'id_cliente' não encontrado na resposta da API")
+            return None
+
+        #messagebox.showinfo("Info", f"Cliente ID: {cliente_id}")
+        return cliente_id
+    
+    def pede_senha(self, banco_id):
+            senha_digitada = simpledialog.askstring(
+                "Senha", 
+                "Digite a senha do cliente ", 
+                show="*",
+                parent=self.root)
+            response1 = requests.get(f"{API_URL_BANCO}/{banco_id}",timeout=5)
+            if response1.status_code != 200:
+                messagebox.showerror("Erro", "Falha ao obter banco.")
+                return False
+            object1 = response1.json()
+            senha_correta = object1.get("senha")
+            if senha_digitada == senha_correta:
+                messagebox.showinfo("Sucesso", "Senha correta. Acesso permitido.")
+                return True
+            else:
+                messagebox.showerror("Erro", "Senha incorreta. Acesso negado.")
+                return False
 
 if __name__ == "__main__":
 
