@@ -211,8 +211,8 @@ class AcademicSystemApp:
 
         try:
             if not self.produto_permite_operacao(produto_id):
-                messagebox.showwarning("Aviso", "Os dados desse produto pertencem a um ambiente privado, " \
-                                        "logo vc nao pode buscar.")
+                #messagebox.showwarning("Aviso", "Os dados desse produto pertencem a um ambiente privado, " \
+                #                        "logo vc nao pode buscar.")
                 
                 if not self.pedir_validar_senha(produto_id):
                     return
@@ -245,8 +245,8 @@ class AcademicSystemApp:
         try:
             ambiente_id = self.entry_ambiente.get()
             if not self.ambiente_permite_operacao(ambiente_id):
-                messagebox.showwarning("Aviso", "Os dados desse produto pertencem a um ambiente privado, " \
-                "logo vc nao pode cadastrar.")
+                #messagebox.showwarning("Aviso", "Os dados desse produto pertencem a um ambiente privado, " \
+                #                        "logo vc nao pode cadastrar.")
 
                 if not self.ambiente_pedir_validar_senha(ambiente_id):
                     return
@@ -361,37 +361,27 @@ class AcademicSystemApp:
             return False
 
     def pedir_validar_senha(self, produto_id):
-        #messagebox.showinfo("Aviso", "entrando em pedir_validar_senha") 
         senha = simpledialog.askstring(
         "Senha", 
         "Digite a senha do cliente ", 
         show="*",
         parent=self.root)
 
-        #messagebox.showinfo("Aviso", "saiu do simpledialog.askstring")
-
         if senha is None:
+            messagebox.showwarning("Aviso", "Senha não fornecida. Acesso negado.")
             return False
-
-        #messagebox.showinfo("Aviso", "entrando no request de produto pra saber o ambiente")
 
         response0 = requests.get(f"{API_URL_PRODUTO}/{produto_id}",timeout=5)
         object0 = response0.json()
         ambiente_id0 = object0.get("id_ambiente")
 
-        #messagebox.showinfo("Aviso", "entrando no request de ambiente pra saber o cliente")
-
         response1 = requests.get(f"{API_URL_AMBIENTE}/{ambiente_id0}",timeout=5)
         object1 = response1.json()
         cliente_id1 = object1.get("cliente")
 
-        #messagebox.showinfo("Aviso", "entrando no request de cliente pra saber a senha")
-
-        response2 = requests.get(f"{API_URL_CLIENTE}/{cliente_id1}",timeout=5)
+        response2 = requests.get(f"{API_URL_BANCO_BY_CLIENTE}/{cliente_id1}",timeout=5)
         object2 = response2.json()
         senha_correta2 = object2.get("senha")
-
-        #messagebox.showinfo("Aviso", "verificando a senha")
 
         if senha == senha_correta2:
             messagebox.showinfo("Sucesso", "Senha correta. Acesso permitido.")
@@ -401,33 +391,24 @@ class AcademicSystemApp:
         return False
 
     def ambiente_pedir_validar_senha(self, ambiente_id):
-            #messagebox.showinfo("Aviso", "entrando em pedir_validar_senha") 
             senha = simpledialog.askstring(
             "Senha", 
             "Digite a senha do cliente ", 
             show="*",
             parent=self.root)
     
-            #messagebox.showinfo("Aviso", "saiu do simpledialog.askstring")
     
             if senha is None:
+                messagebox.showwarning("Aviso", "Senha não fornecida. Acesso negado.")
                 return False
-    
-            #messagebox.showinfo("Aviso", "entrando no request de produto pra saber o ambiente")
-
-            #messagebox.showinfo("Aviso", "entrando no request de ambiente pra saber o cliente")
     
             response1 = requests.get(f"{API_URL_AMBIENTE}/{ambiente_id}",timeout=5)
             object1 = response1.json()
             cliente_id1 = object1.get("cliente")
     
-            #messagebox.showinfo("Aviso", "entrando no request de cliente pra saber a senha")
-    
-            response2 = requests.get(f"{API_URL_CLIENTE}/{cliente_id1}",timeout=5)
+            response2 = requests.get(f"{API_URL_BANCO_BY_CLIENTE}/{cliente_id1}",timeout=5)
             object2 = response2.json()
-            senha_correta2 = object2.get("senha")
-    
-            #messagebox.showinfo("Aviso", "verificando a senha")
+            senha_correta2 = object2.get("senha")           
     
             if senha == senha_correta2:
                 messagebox.showinfo("Sucesso", "Senha correta. Acesso permitido.")
