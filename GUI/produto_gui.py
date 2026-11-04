@@ -250,7 +250,10 @@ class AcademicSystemApp:
 
                 if not self.ambiente_pedir_validar_senha(ambiente_id):
                     return
-            
+
+            if not self.validar_pagamento(self.entry_ambiente.get(), float(self.entry_preco.get())):
+                return
+
             data = {
                 "id_ambiente": self.entry_ambiente.get(),
                 "tipo": self.entry_tipo.get(),
@@ -417,6 +420,43 @@ class AcademicSystemApp:
             messagebox.showwarning("Aviso", "Senha incorreta. Acesso negado.")
             return False
         
+    def validar_pagamento(self, ambiente_id0, preco_produto):
+        response1 = requests.get(f"{API_URL_AMBIENTE}/{ambiente_id0}",timeout=5)
+        object1 = response1.json()
+        cliente_id1 = object1.get("cliente")
+
+        response2 = requests.get(f"{API_URL_BANCO_BY_CLIENTE}/{cliente_id1}",timeout=5)
+        object2 = response2.json()
+        dinheiro_banco = float(object2.get("dinheiro"))
+
+        messagebox.showinfo("Info", f"Saldo do banco: {dinheiro_banco}, Preço do produto: {preco_produto}")
+
+        if dinheiro_banco >= preco_produto:
+            dinheiro_restante = dinheiro_banco - preco_produto
+            try:
+                id_banco = object2.get("id_banco")
+                data = {
+                    "id_cliente": object2.get("id_cliente"),
+                    "dinheiro": dinheiro_restante,
+                    "senha": object2.get("senha")
+                }
+
+                response = requests.put(f"{API_URL_BANCO}/{id_banco}", data=data)
+
+                if response.status_code in [200, 201]:
+                    messagebox.showinfo("Sucesso", "Banco atualizado com sucesso")
+                else:
+                    messagebox.showerror("Erro", response.text)
+                    return False
+    
+            except Exception as e:
+                messagebox.showerror("Erro", str(e))
+                return False
+
+            return True
+
+        messagebox.showwarning("Aviso", "Saldo insuficiente.")
+        return False
 
 if __name__ == "__main__":
 
