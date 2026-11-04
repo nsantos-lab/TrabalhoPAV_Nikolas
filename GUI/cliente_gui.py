@@ -388,17 +388,20 @@ class AcademicSystemApp:
             messagebox.showerror("Erro", str(e))
 
     def pede_senha_id_cliente(self, cliente_id):
-        senha_digitada = simpledialog.askstring(
-            "Senha", 
-            "Digite a senha do cliente ", 
-            show="*",
-            parent=self.root)
+        
         response1 = requests.get(f"{API_URL_BANCO_BY_CLIENTE}/{cliente_id}")
         if response1.status_code != 200:
             messagebox.showerror("Erro", "Falha ao obter banco.")
-            return False
+            return True
         object1 = response1.json()
         senha_correta = object1.get("senha")
+
+        senha_digitada = simpledialog.askstring(
+                    "Senha", 
+                    "Digite a senha do cliente ", 
+                    show="*",
+                    parent=self.root)
+        
         if senha_digitada == senha_correta:
             messagebox.showinfo("Sucesso", "Senha correta. Acesso permitido.")
             return True
