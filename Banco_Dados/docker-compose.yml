@@ -1,0 +1,15 @@
+services:
+  database:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: trabalhopav
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - dados_do_banco:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+volumes:
+  dados_do_banco:
