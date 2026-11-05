@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, jsonify, render_template
 import mysql.connector
 
@@ -19,10 +21,11 @@ def initialize_pages(app: Flask) -> None:
     @app.route('/tables', methods = ['GET'])
     def get_tables():
         con = mysql.connector.connect(  # gera a conexao com o banco
-            host = 'localhost',
-            user = 'root',
-            password = 'root',
-            database = 'trabalhopav'
+            host=os.getenv("DB_HOST", "localhost"),
+            port=int(os.getenv("DB_PORT", "3306")),
+            user=os.getenv("DB_USER", "root"),
+            password=os.getenv("DB_PASSWORD", "root"),
+            database=os.getenv("DB_NAME", "trabalhopav"),
         )
         try:
             cursor = con.cursor()

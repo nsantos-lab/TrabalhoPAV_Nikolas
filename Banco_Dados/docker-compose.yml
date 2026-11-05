@@ -10,6 +10,29 @@ services:
     volumes:
       - dados_do_banco:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping --protocol=TCP -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  api:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DB_HOST: database
+      DB_PORT: 3306
+      DB_NAME: trabalhopav
+      DB_USER: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    ports:
+      - "5000:5000"
+    depends_on:
+      database:
+        condition: service_healthy
 
 volumes:
   dados_do_banco:

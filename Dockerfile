@@ -23,7 +23,5 @@ COPY src ./src
 # 8. Informa que o container escuta na porta 5000 (padrão do Flask)
 EXPOSE 5000
 
-# 9. Comando para rodar a API usando o servidor de produção do Flask
-    # aparentemente o "run" é um servidor de desenvolvimento.
-    #CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+# Inicia o servidor de desenvolvimento do Flask, adequado para testes locais.
 CMD ["flask", "--app", "manage", "run", "--host=0.0.0.0", "--port=5000"]
