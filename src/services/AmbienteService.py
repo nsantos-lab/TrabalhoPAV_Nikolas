@@ -12,8 +12,8 @@ def getAmbiente(ambiente_id):
     return get_ambiente(ambiente_id)
 
 def addAmbiente(cliente_id: int, oxigenio: float, carbonico: float, poluentes: float, umidade: float, densidade: float, dados_publicos: bool) -> Ambiente:
-    if(cliente_id is None):
-        raise ValidationError("Cliente ID must not be null.")
+    if(cliente_id is None or cliente_id < 0):
+        raise ValidationError("Cliente ID must not be null or negative.")
     if(oxigenio is None or oxigenio < 0):
         raise ValidationError("Oxigenio must not be null or negative.")
     if(carbonico is None or carbonico < 0):

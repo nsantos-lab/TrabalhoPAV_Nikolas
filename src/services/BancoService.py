@@ -12,12 +12,12 @@ def getBanco(id_banco):
     return get_banco(id_banco)
 
 def addBanco(id_cliente: int, dinheiro: float, senha: str) -> Banco:
-    if(id_cliente is None):
-        raise ValidationError("Cliente ID must not be null.")
+    if(id_cliente is None or id_cliente < 0):
+        raise ValidationError("Cliente ID must not be null or negative.")
     if(dinheiro is None or dinheiro < 0):
         raise ValidationError("Dinheiro must not be null or negative.")
     if(senha is None or senha == ''):
-        raise ValidationError("Senha must not be null.")
+        raise ValidationError("Senha must not be null or empty.")
 
     return add_banco(id_cliente, dinheiro, senha)
 

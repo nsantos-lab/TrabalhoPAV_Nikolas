@@ -12,8 +12,8 @@ def getAmbiente_Tempo(ambiente_tempo_id):
     return get_ambiente_tempo(ambiente_tempo_id)
 
 def addAmbiente_Tempo(ambiente_id: int, oxigenio: float, carbonico: float, poluentes: float, umidade: float, densidade: float) -> Ambiente_Tempo:
-    if(ambiente_id is None):
-        raise ValidationError("Ambiente ID must not be null.")
+    if(ambiente_id is None or ambiente_id < 0):
+        raise ValidationError("Ambiente ID must not be null or negative.")
     if(oxigenio is None or oxigenio < 0):
         raise ValidationError("Oxigenio must not be null or negative.")
     if(carbonico is None or carbonico < 0):

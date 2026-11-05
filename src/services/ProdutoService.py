@@ -11,14 +11,14 @@ def getProduto(produto_id):
     return get_produto(produto_id)
 
 def addProduto(id_ambiente: int, tipo: str, preco: float, potencia: float) -> Produto:
-    if(id_ambiente is None):
-        raise ValidationError("Ambiente ID must not be null.")
+    if(id_ambiente is None or id_ambiente < 0):
+        raise ValidationError("Ambiente ID must not be null or negative.")
     if(tipo is None or tipo == ''):
-        raise ValidationError("Tipo must not be null.")
-    if(preco is None or preco == 0):
-        raise ValidationError("Preço must not be null or zero.")
-    if(potencia is None or potencia == 0):
-        raise ValidationError("Potência must not be null or zero.")
+        raise ValidationError("Tipo must not be null or empty.")
+    if(preco is None or preco < 0):
+        raise ValidationError("Preço must not be null or negative.")
+    if(potencia is None or potencia == 0 or potencia < 0):
+        raise ValidationError("Potência must not be null, zero or negative.")
     
     return add_produto(id_ambiente=id_ambiente, tipo=tipo, preco=preco, potencia=potencia)
 

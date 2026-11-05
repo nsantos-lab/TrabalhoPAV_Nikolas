@@ -18,6 +18,8 @@ def addCliente(nome: str, cpf: str, email: str, telefone: str, dados_publicos: b
         raise ValidationError("CPF must not be null.")
     if(email is None or email == ''):
         raise ValidationError("Email must not be null.")
+    if(telefone is None or telefone == ''):
+        raise ValidationError("Telefone must not be null.")
     if(data_nascimento is None or data_nascimento == ''):
         raise ValidationError("Data de nascimento must not be null.")
     if(data_nascimento > date.today()):
