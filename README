@@ -1,0 +1,6 @@
+
+Na outra máquina, a partir da pasta raiz do projeto, será preciso executar:
+    docker compose -f .\Banco_Dados\docker-compose.yml up --build -d
+
+As Interfces graficas estão fora dos 2 conteiners (devido ao "Interface roda FORA do container"), 
+logo será necessario instalar suas dependencias manualmente.
