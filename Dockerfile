@@ -24,6 +24,6 @@ COPY src ./src
 EXPOSE 5000
 
 # 9. Comando para rodar a API usando o servidor de produção do Flask
-    # aparentemente o "run" não é recomendado para produção.
-#CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
-CMD ["flask", "--app", "manage", "run", "--host=0.0.0.0", "--port=5000"].
+    # aparentemente o "run" é um servidor de desenvolvimento.
+    #CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+CMD ["flask", "--app", "manage", "run", "--host=0.0.0.0", "--port=5000"]
