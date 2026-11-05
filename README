@@ -4,3 +4,6 @@ Na outra máquina, a partir da pasta raiz do projeto, será preciso executar:
 
 As Interfces graficas estão fora dos 2 conteiners (devido ao "Interface roda FORA do container"), 
 logo será necessario instalar suas dependencias manualmente.
+
+Serve para fazer pesquisas no banco de dados:
+    docker compose -f .\Banco_Dados\docker-compose.yml exec database mysql -uroot -proot trabalhopav -e "SELECT * FROM cliente;"

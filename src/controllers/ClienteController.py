@@ -29,6 +29,10 @@ class ClienteRequestSchema(Schema): # Transforma json em dict
     data_nascimento = fields.Date()
     data_cadastro = fields.DateTime()
 
+    @validates("id")
+    def validate_id(self, value):
+        if not re.match(pattern=r"^[0-9]+$", string=value):
+            raise ValidationError("Value must contain only numeric characters.")
     @validates("nome")
     def validate_name(self, value):
         if not re.match(pattern=r"^[a-zA-Z0-9_\s]+$", string=value):
@@ -36,7 +40,23 @@ class ClienteRequestSchema(Schema): # Transforma json em dict
     @validates("cpf")
     def validate_cpf(self, value):
         if not re.match(pattern=r"^[0-9]{11}$", string=value):
-            raise ValidationError("Value must be in the format 00000000000.")
+            raise ValidationError("Value must contain only 11 numeric characters.")
+    @validates("email")
+    def validate_email(self, value):
+        if not re.match(pattern=r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.([a-zA-Z0-9-.])+$", string=value):
+            raise ValidationError("Value must be in the format email@domain.com")
+    @validates("telefone")
+    def validate_telefone(self, value):
+        if not re.match(pattern=r"^[0-9]{11}$", string=value):
+            raise ValidationError("Value must contain only 11 numeric characters.")
+    @validates("dados_publicos")
+    def validate_dados_publicos(self, value):
+        if not isinstance(value, bool):
+            raise ValidationError("Value must be a boolean.")
+    @validates("data_nascimento")
+    def validate_data_nascimento(self, value):
+        if not re.match(pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$", string=value):
+            raise ValidationError("Value must be in the format YYYY-MM-DD.")
 
 class ClienteItem(MethodResource, Resource):
     @marshal_with(ClienteResponseSchema)

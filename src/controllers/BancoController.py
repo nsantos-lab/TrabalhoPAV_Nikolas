@@ -25,6 +25,14 @@ class BancoRequestSchema(Schema): # Transforma json em dict
     def validate_id_banco(self, value):
         if not re.match(pattern=r"^[0-9]+$", string=value):
             raise ValidationError("Value must contain only numeric characters.")
+    @validates("id_cliente")
+    def validate_id_cliente(self, value):
+        if not re.match(pattern=r"^[0-9]+$", string=value):
+            raise ValidationError("Value must contain only numeric characters.")
+    @validates("dinheiro")
+    def validate_dinheiro(self, value):
+        if not re.match(pattern=r"^[0-9]+(\.[0-9]+)?$", string=value):
+            raise ValidationError("Value must be a valid decimal number.")
 
 class BancoItem(MethodResource, Resource):
     @marshal_with(BancoResponseSchema)

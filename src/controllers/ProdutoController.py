@@ -23,6 +23,27 @@ class ProdutoRequestSchema(Schema): # Transforma json em dict
     preco = fields.Float()
     potencia = fields.Float()
 
+    @validates("id")
+    def validate_id(self, value):
+        if not re.match(pattern=r"^[0-9]+$", string=value):
+            raise ValidationError("Value must contain only numeric characters.")
+    @validates("id_ambiente")
+    def validate_id_ambiente(self, value):
+        if not re.match(pattern=r"^[0-9]+$", string=value):
+            raise ValidationError("Value must contain only numeric characters.")
+    @validates("tipo")
+    def validate_tipo(self, value):
+        if not re.match(pattern=r"^[A-Z]{3}$", string=value):
+            raise ValidationError("Value must contain only 3 uppercase letters.")
+    @validates("preco")
+    def validate_preco(self, value):
+        if not re.match(pattern=r"^[0-9]+(\.[0-9]+)?$", string=value):
+            raise ValidationError("Value must be a valid decimal number.")
+    @validates("potencia")
+    def validate_potencia(self, value):
+        if not re.match(pattern=r"^[0-9]+(\.[0-9]+)?$", string=value):
+            raise ValidationError("Value must be a valid decimal number.")
+
 class ProdutoItem(MethodResource, Resource):
     @marshal_with(ProdutoResponseSchema)
     def get(self, produto_id):

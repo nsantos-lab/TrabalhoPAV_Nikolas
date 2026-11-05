@@ -1,7 +1,9 @@
+import re
+
 from flask_restful import Resource, abort, request
 from flask_apispec import marshal_with, use_kwargs
 from flask_apispec.views import MethodResource
-from marshmallow import Schema, fields
+from marshmallow import Schema, ValidationError, fields, validates
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm.exc import UnmappedInstanceError
 
@@ -26,6 +28,35 @@ class Ambiente_TempoRequestSchema(Schema): # Transforma json em dict
     umidade = fields.Float()
     densidade = fields.Float()
     data_cadastro = fields.DateTime()
+
+    @validates("id")
+    def validate_id(self, value):
+        if not re.match(pattern=r"^[0-9]+$", string=value):
+            raise ValidationError("Value must contain only numeric characters.")
+    @validates("ambiente")
+    def validate_ambiente(self, value):
+        if not re.match(pattern=r"^[0-9]+$", string=value):
+            raise ValidationError("Value must contain only numeric characters.")
+    @validates("oxigenio")
+    def validate_oxigenio(self, value):
+        if not re.match(pattern=r"^[0-9]+(\.[0-9]+)?$", string=value):
+            raise ValidationError("Value must be a valid decimal number.")
+    @validates("carbonico")
+    def validate_carbonico(self, value):
+        if not re.match(pattern=r"^[0-9]+(\.[0-9]+)?$", string=value):
+            raise ValidationError("Value must be a valid decimal number.")
+    @validates("poluentes")
+    def validate_poluentes(self, value):
+        if not re.match(pattern=r"^[0-9]+(\.[0-9]+)?$", string=value):
+            raise ValidationError("Value must be a valid decimal number.")
+    @validates("umidade")
+    def validate_umidade(self, value):
+        if not re.match(pattern=r"^[0-9]+(\.[0-9]+)?$", string=value):
+            raise ValidationError("Value must be a valid decimal number.")
+    @validates("densidade")
+    def validate_densidade(self, value):
+        if not re.match(pattern=r"^[0-9]+(\.[0-9]+)?$", string=value):
+            raise ValidationError("Value must be a valid decimal number.")
 
 class Ambiente_TempoItem(MethodResource, Resource):
     @marshal_with(Ambiente_TempoResponseSchema)
