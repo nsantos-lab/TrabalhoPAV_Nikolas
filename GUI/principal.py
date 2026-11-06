@@ -1,0 +1,554 @@
+import tkinter as tk
+from tkinter import messagebox, simpledialog, ttk
+import requests
+
+API_URL_CLIENTE = "http://127.0.0.1:5000/trabalhopav/clientes"
+API_URL_BANCO = "http://127.0.0.1:5000/trabalhopav/bancos"
+API_URL_BANCO_BY_CLIENTE = "http://127.0.0.1:5000/trabalhopav/bancos/cliente"
+
+class AcademicSystemApp:
+    def __init__(self, root):
+
+        self.root = root
+        self.root.title("Trabalho PAV")
+        self.root.geometry("780x640")
+        self.root.configure(bg="#f5f6fa")
+        self.root.resizable(False, False)
+
+        self.setup_ui()
+
+    def criar_campo(self, pai, texto, linha, coluna):
+        tk.Label(
+        pai,
+        text=texto,
+        font=("Segoe UI", 10, "bold"),
+        bg="#f5f6fa",
+        fg="#2d3436"
+        ).grid(row=linha, column=coluna, sticky="w")
+
+        campo = tk.Entry(pai, font=("Segoe UI", 10), width=35)
+        campo.grid(row=linha, column=coluna + 1, padx=20)
+        return campo
+
+    def setup_ui(self):
+
+        # ==== ABAS =====
+        notebook = ttk.Notebook(self.root)
+        notebook.pack(fill="both", expand=True)
+
+        aba_clientes = tk.Frame(notebook, bg="#f5f6fa")
+        aba_bancos = tk.Frame(notebook, bg="#f5f6fa")
+        aba_ambientes = tk.Frame(notebook, bg="#f5f6fa")
+        aba_produtos = tk.Frame(notebook, bg="#f5f6fa")
+        aba_ambiente_tempo = tk.Frame(notebook, bg="#f5f6fa")
+
+        notebook.add(aba_clientes, text="Clientes")
+        notebook.add(aba_bancos, text="Bancos")
+        notebook.add(aba_ambientes, text="Ambientes")
+        notebook.add(aba_produtos, text="Produtos")
+        notebook.add(aba_ambiente_tempo, text="Ambiente Tempo")
+
+        # ===== TITLE CLIENTE =====
+        title = tk.Label(
+            aba_clientes,
+            text="Clientes",
+            font=("Segoe UI", 14, "bold"),
+            bg="#f5f6fa",
+            fg="#2d3436"
+        )
+        title.pack(pady=(5, 10))
+
+        # ===== FORM FRAME CLIENTE =====
+        form_frame_cliente = tk.Frame(aba_clientes, bg="#f5f6fa")
+        form_frame_cliente.pack(padx=20, fill="x")
+
+        # ===== ID =====
+        self.entry_id_cliente = self.criar_campo(form_frame_cliente, "ID:", 0, 0)
+
+        # ===== NOME =====
+        self.entry_nome = self.criar_campo(form_frame_cliente, "Nome:", 1, 0)
+
+        # ===== CPF =====
+        self.entry_cpf = self.criar_campo(form_frame_cliente, "CPF:", 2, 0)
+
+        # ===== EMAIL =====
+        self.entry_email = self.criar_campo(form_frame_cliente, "Email:", 3, 0)
+
+        # ===== TELEFONE =====
+        self.entry_telefone = self.criar_campo(form_frame_cliente, "Telefone:", 0, 3)
+        
+        # ===== DADOS_PUBLICOS =====
+        self.entry_dados_publicos_cliente = self.criar_campo(form_frame_cliente, "Dados Públicos:", 1, 3)
+
+        # ===== DATA_NASCIMENTO =====
+        self.entry_data_nascimento = self.criar_campo(form_frame_cliente, "Nascimento:", 2, 3)
+
+        # ===== DATA_CADASTRO =====
+        self.entry_data_cadastro_cliente = self.criar_campo(form_frame_cliente, "Data de Cadastro:", 3, 3)
+
+        # ===== TITLE BANCO =====
+        title = tk.Label(
+            aba_bancos,
+            text="Tela de Bancos",
+            font=("Segoe UI", 14, "bold"),
+            bg="#f5f6fa",
+            fg="#2d3436"
+        )
+        title.pack(pady=(5, 10))
+
+        # ===== FORM FRAME BANCO =====
+        form_frame_banco = tk.Frame(aba_bancos, bg="#f5f6fa")
+        form_frame_banco.pack(padx=20, fill="x")
+
+        # ===== ID =====
+        self.entry_id_banco = self.criar_campo(form_frame_banco, "ID:", 0, 0)
+
+        # ===== CLIENTE =====
+        self.entry_cliente_banco = self.criar_campo(form_frame_banco, "Cliente:", 1, 0)
+
+        # ===== DINHEIRO =====
+        self.entry_dinheiro = self.criar_campo(form_frame_banco, "Dinheiro:", 2, 0)
+
+        # ===== SENHA =====
+        self.entry_senha = self.criar_campo(form_frame_banco, "Senha:", 3, 0)
+
+
+        # ===== BUTTON FRAME CLIENTES=====
+        button_frame = tk.Frame(aba_clientes, bg="#f5f6fa")
+        button_frame.pack(pady=30)
+
+        # ==== DELETE CLIENTES BUTTON ====
+        self.create_button(
+            button_frame,
+            "Excluir",
+            "#d63031",
+            self.call_api_delete_cliente
+        ).grid(row=0, column=0, padx=0)
+
+        # ==== PUT CLIENTES BUTTON ====
+        self.create_button(
+            button_frame,
+            "Editar",
+            "#e17055",
+            self.call_api_put_cliente
+        ).grid(row=0, column=1, padx=0)
+
+        # ==== POST CLIENTES BUTTON ====
+        self.create_button(
+            button_frame,
+            "Cadastrar",
+            "#0984e3",
+            self.call_api_post_cliente
+        ).grid(row=0, column=2, padx=0)
+
+        # ==== GET CLIENTES BUTTON ====
+        self.create_button(
+            button_frame,
+            "Buscar",
+            "#6c5ce7",
+            self.call_api_get_cliente
+        ).grid(row=0, column=3, padx=0)
+
+        # ===== CLEAR CLIENTES BUTTON =====
+        self.create_button(
+            button_frame,
+            "Limpar",
+            "#636e72",
+            self.clear_fields_cliente
+        ).grid(row=0, column=4, padx=0)
+
+        # ===== BUTTON FRAME BANCOS=====
+        button_frame_bancos = tk.Frame(aba_bancos, bg="#f5f6fa")
+        button_frame_bancos.pack(pady=30)
+
+        # ==== DELETE BANCOS BUTTON ====
+        self.create_button(
+            button_frame_bancos,
+            "Excluir",
+            "#d63031",
+            self.call_api_delete_banco
+        ).grid(row=0, column=0, padx=8)
+
+        # ==== GET BANCOS BUTTON ====
+        self.create_button(
+            button_frame_bancos,
+            "Editar",
+            "#e17055",
+            self.call_api_put_banco
+        ).grid(row=0, column=1, padx=8)
+
+        # ==== POST BANCOS BUTTON ====
+        self.create_button(
+            button_frame_bancos,
+            "Cadastrar",
+            "#0984e3",
+            self.call_api_post_banco
+        ).grid(row=0, column=2, padx=8)
+
+        # ==== GET BANCOS BUTTON ====
+        self.create_button(
+            button_frame_bancos,
+            "Buscar",
+            "#6c5ce7",
+            self.call_api_get_banco
+        ).grid(row=0, column=3, padx=8)
+
+        # ===== CLEAR BANCOS BUTTON =====
+        self.create_button(
+            button_frame,
+            "Limpar",
+            "#636e72",
+            self.clear_fields_banco
+        ).grid(row=0, column=4, padx=0)
+        
+
+        # ==== CLIENT LIST FRAME =====
+        client_list_frame = tk.Frame(aba_clientes, bg="#f5f6fa")
+        client_list_frame.pack(padx=20, fill="both", expand=True)
+
+        tk.Label(
+            client_list_frame,
+            text="Clientes cadastrados",
+            font=("Segoe UI", 10, "bold"),
+            bg="#f5f6fa",
+            fg="#2d3436"
+        ).pack(anchor="w", pady=(0, 5))
+
+        columns = ("id", "nome", "cpf", "email", "telefone", "dados_publicos", "nascimento", "data_cadastro")
+        self.client_list = ttk.Treeview(
+            client_list_frame,
+            columns=columns,
+            show="headings",
+            height=12
+        )
+        self.client_list.heading("id", text="ID")
+        self.client_list.heading("nome", text="Nome")
+        self.client_list.heading("cpf", text="CPF")
+        self.client_list.heading("email", text="Email")
+        self.client_list.heading("telefone", text="Telefone")
+        self.client_list.heading("dados_publicos", text="Públicos")
+        self.client_list.heading("nascimento", text="Nascimento")
+        self.client_list.heading("data_cadastro", text="Data de Cadastro")
+
+        self.client_list.column("id", width=5, anchor="center")
+        self.client_list.column("nome", width=50)
+        self.client_list.column("cpf", width=35)
+        self.client_list.column("email", width=100)
+        self.client_list.column("telefone", width=35)
+        self.client_list.column("dados_publicos", width=0)
+        self.client_list.column("nascimento", width=30)
+        self.client_list.column("data_cadastro", width=50)
+        client_scrollbar = tk.Scrollbar(
+            client_list_frame,
+            orient="vertical",
+            command=self.client_list.yview
+        )
+        self.client_list.configure(yscrollcommand=client_scrollbar.set)
+        self.client_list.pack(side="left", fill="both", expand=True)
+        client_scrollbar.pack(side="right", fill="y")
+        self.client_list.bind("<<ListboxSelect>>", self.select_client)
+
+        self.create_button(
+            aba_clientes,
+            "Atualizar lista",
+            "#00b894",
+            self.load_clients
+        ).pack(pady=(8, 15))
+
+        self.root.after(100, self.load_clients)
+
+    def create_button(self, parent, text, color, command):
+
+        button = tk.Button(
+            parent,
+            text=text,
+            command=command,
+            font=("Segoe UI", 12, "bold"),
+            bg=color,
+            fg="white",
+            activebackground=color,
+            activeforeground="white",
+            relief="flat",
+            cursor="hand2",
+            width=12,
+            height=0,
+            bd=0
+        )
+
+        return button
+
+    def load_clients(self):
+        try:
+            response = requests.get(API_URL_CLIENTE)
+            response.raise_for_status()
+            clients = response.json()
+            if not isinstance(clients, list):
+                raise ValueError("A resposta da API não contém uma lista de clientes.")
+
+            self.client_list.delete(*self.client_list.get_children())
+            for client in clients:
+                client_id = client["id"]
+                name = client.get("nome")
+                cpf = client.get("cpf")
+                email = client.get("email")
+                telefone = client.get("telefone")
+                dados_publicos = client.get("dados_publicos")
+                nascimento = client.get("data_nascimento")
+                data_cadastro = client.get("data_cadastro")
+
+                self.client_list.insert(
+                    "",
+                    tk.END,
+                    values=(client_id, name, cpf, email, telefone, dados_publicos, nascimento, data_cadastro)
+                )
+        except (requests.RequestException, ValueError, KeyError) as error:
+            messagebox.showerror("Erro", f"Não foi possível carregar os clientes: {error}")
+
+    def select_client(self, _event):
+        selection = self.client_list.selection()
+        if not selection:
+            return
+
+        client_id = self.client_list.item(selection[0], "values")[0]
+        self.entry_id.delete(0, tk.END)
+        self.entry_id.insert(0, str(client_id))
+
+    def clear_fields_cliente(self):
+        self.entry_id_cliente.delete(0, tk.END)
+        self.entry_nome.delete(0, tk.END)
+        self.entry_cpf.delete(0, tk.END)
+        self.entry_email.delete(0, tk.END)
+        self.entry_telefone.delete(0, tk.END)
+        self.entry_dados_publicos_cliente.delete(0, tk.END)
+        self.entry_data_nascimento.delete(0, tk.END)
+        self.entry_data_cadastro_cliente.delete(0, tk.END)
+
+    def clear_fields_banco(self):
+        self.entry_id_banco.delete(0, tk.END)
+        self.entry_cliente_banco.delete(0, tk.END)
+        self.entry_dinheiro.delete(0, tk.END)
+        self.entry_senha.delete(0, tk.END)
+
+    def call_api_get_cliente(self):
+        cliente_id = self.entry_id_cliente.get()
+
+        if not cliente_id:
+            messagebox.showwarning("Aviso", "Informe o ID do cliente")
+            return
+        
+        try:
+            response = requests.get(f"{API_URL_CLIENTE}/{cliente_id}")
+            object = response.json()
+            dados_publicos1 = object.get("dados_publicos")
+            if dados_publicos1 is False:
+                if not self.pede_senha_id_cliente(cliente_id):
+                    return
+            if response.status_code == 200:
+                data = response.json()
+
+                self.entry_nome.delete(0, tk.END)
+                self.entry_nome.insert(0, data.get("nome", ""))
+                self.entry_cpf.delete(0, tk.END)
+                self.entry_cpf.insert(0, data.get("cpf", ""))
+                self.entry_email.delete(0, tk.END)
+                self.entry_email.insert(0, data.get("email", ""))
+                self.entry_telefone.delete(0, tk.END)
+                self.entry_telefone.insert(0, data.get("telefone", ""))
+                self.entry_dados_publicos_cliente.delete(0, tk.END)
+                self.entry_dados_publicos_cliente.insert(0, data.get("dados_publicos", ""))
+                self.entry_data_nascimento.delete(0, tk.END)
+                self.entry_data_nascimento.insert(0, data.get("data_nascimento", ""))
+                self.entry_data_cadastro_cliente.delete(0, tk.END)
+                self.entry_data_cadastro_cliente.insert(0, data.get("data_cadastro", ""))
+
+            else:
+                messagebox.showerror("Erro", "Cliente não encontrado")
+
+        except Exception as e:
+            messagebox.showerror("Erro", str(e))
+
+    def call_api_get_banco(self):   
+        id_banco = self.entry_id_banco.get()
+
+        if not id_banco:
+            messagebox.showwarning("Aviso", "Informe o ID do banco")
+            return
+        
+        id_cliente = self.get_cliente(id_banco)
+        #messagebox.showinfo("Info", f"ID do cliente: {id_cliente}")
+
+        if not self.cliente_publico(id_cliente):
+            #messagebox.showwarning("Aviso", "Cliente não é público. Não é possível buscar o banco.")
+            if not self.pede_senha(id_banco):
+                #messagebox.showwarning("Aviso", "Senha incorreta. Não é possível buscar o banco.")
+                return
+
+        try:
+            response = requests.get(f"{API_URL_BANCO}/{id_banco}")
+
+            if response.status_code == 200:
+                data = response.json()
+
+                self.entry_cliente_banco.delete(0, tk.END)
+                self.entry_cliente_banco.insert(0, data.get("id_cliente", ""))
+                self.entry_dinheiro.delete(0, tk.END)
+                self.entry_dinheiro.insert(0, data.get("dinheiro", ""))
+                self.entry_senha.delete(0, tk.END)
+                self.entry_senha.insert(0, data.get("senha", ""))
+
+            else:
+                messagebox.showerror("Erro", "Banco não encontrado")
+
+        except Exception as e:
+            messagebox.showerror("Erro", str(e))
+
+    def call_api_post_cliente(self):
+
+        try:
+            data = {
+                "nome": self.entry_nome.get(),
+                "cpf": self.entry_cpf.get(),
+                "email": self.entry_email.get(),
+                "telefone": self.entry_telefone.get(),
+                "dados_publicos": self.entry_dados_publicos.get(),
+                "data_nascimento": self.entry_data_nascimento.get()
+            }
+
+            response = requests.post(API_URL_CLIENTE, data=data)
+
+            if response.status_code in [200, 201]:
+                messagebox.showinfo("Sucesso", "Cliente cadastrado com sucesso")
+                self.clear_fields()
+                self.load_clients()
+            else:
+                messagebox.showerror("Erro", response.text)
+
+        except Exception as e:
+            messagebox.showerror("Erro", str(e))
+
+    def call_api_put_cliente(self):
+        try:
+            cliente_id = self.entry_id.get()
+
+            response = requests.get(f"{API_URL_CLIENTE}/{cliente_id}")
+            object = response.json()
+            dados_publicos1 = object.get("dados_publicos")
+            if dados_publicos1 is False:
+                if not self.pede_senha_id_cliente(cliente_id):
+                    return
+
+            data = {
+                "nome": self.entry_nome.get(),
+                "cpf": self.entry_cpf.get(),
+                "email": self.entry_email.get(),
+                "telefone": self.entry_telefone.get(),
+                "dados_publicos": self.entry_dados_publicos.get(),
+                "data_nascimento": self.entry_data_nascimento.get()
+            }
+
+            response = requests.put(f"{API_URL_CLIENTE}/{cliente_id}", data=data)
+
+            if response.status_code in [200, 201]:
+                messagebox.showinfo("Sucesso", "Cliente atualizado com sucesso")
+                self.clear_fields()
+                self.load_clients()
+            else:
+                messagebox.showerror("Erro", response.text)
+
+        except Exception as e:
+            messagebox.showerror("Erro", str(e))
+
+    def call_api_delete_cliente(self):
+
+        cliente_id = self.entry_id.get()
+
+        if not cliente_id:
+            messagebox.showwarning("Aviso", "Informe o ID do cliente")
+            return
+
+        response = requests.get(f"{API_URL_CLIENTE}/{cliente_id}")
+        object = response.json()
+        dados_publicos1 = object.get("dados_publicos")
+        if dados_publicos1 is False:
+            if not self.pede_senha_id_cliente(cliente_id):
+                return
+
+        try:
+            response = requests.delete(f"{API_URL_CLIENTE}/{cliente_id}")
+
+            if response.status_code == 200:
+                messagebox.showinfo("Sucesso", "Cliente removido com sucesso")
+                self.clear_fields()
+                self.load_clients()
+            else:
+                messagebox.showerror("Erro", response.text)
+
+        except Exception as e:
+            messagebox.showerror("Erro", str(e))
+
+    def pede_senha_id_cliente(self, cliente_id):
+        
+        response1 = requests.get(f"{API_URL_BANCO_BY_CLIENTE}/{cliente_id}")
+        if response1.status_code != 200:
+            messagebox.showerror("Erro", "Falha ao obter banco.")
+            return True
+        object1 = response1.json()
+        senha_correta = object1.get("senha")
+
+        senha_digitada = simpledialog.askstring(
+                    "Senha", 
+                    "Digite a senha do cliente ", 
+                    show="*",
+                    parent=self.root)
+        
+        if senha_digitada == senha_correta:
+            messagebox.showinfo("Sucesso", "Senha correta. Acesso permitido.")
+            return True
+        else:
+            messagebox.showerror("Erro", "Senha incorreta. Acesso negado.")
+            return False
+
+    def get_cliente(self, banco_id):
+        response = requests.get(f"{API_URL_BANCO}/{banco_id}", timeout=5)
+        banco = response.json()
+        cliente_id = banco.get("id_cliente")
+
+        if not cliente_id:
+            messagebox.showerror("Erro", "Campo 'id_cliente' não encontrado na resposta da API")
+            return None
+
+        #messagebox.showinfo("Info", f"Cliente ID: {cliente_id}")
+        return cliente_id
+
+    def cliente_publico(self, cliente_id):
+        response = requests.get(f"{API_URL_CLIENTE}/{cliente_id}", timeout=5)
+        cliente = response.json()
+
+        if "dados_publicos" not in cliente:
+            messagebox.showerror("Erro", "Campo 'dados_publicos' não encontrado na resposta da API")
+            return False
+
+        if (cliente["dados_publicos"] == True):
+            #messagebox.showwarning("True", "só")
+            return True
+        if (cliente["dados_publicos"] == False):
+            #messagebox.showwarning("False", "só")
+            return False
+        
+        messagebox.showerror("Putz", "nao deveria chegar aqui, mas chegou")
+        return False
+
+    
+#==================COMECANDO BANCOS==================================#
+#==================COMECANDO BANCOS==================================#
+
+    
+
+
+if __name__ == "__main__":
+
+    root = tk.Tk()
+
+    app = AcademicSystemApp(root)
+
+    root.mainloop()

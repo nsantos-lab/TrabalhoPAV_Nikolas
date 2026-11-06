@@ -324,23 +324,23 @@ class AcademicSystemApp:
         return cliente_id
     
     def pede_senha(self, banco_id):
-            senha_digitada = simpledialog.askstring(
-                "Senha", 
-                "Digite a senha do cliente ", 
-                show="*",
-                parent=self.root)
-            response1 = requests.get(f"{API_URL_BANCO}/{banco_id}",timeout=5)
-            if response1.status_code != 200:
-                messagebox.showerror("Erro", "Falha ao obter banco.")
-                return False
-            object1 = response1.json()
-            senha_correta = object1.get("senha")
-            if senha_digitada == senha_correta:
-                messagebox.showinfo("Sucesso", "Senha correta. Acesso permitido.")
-                return True
-            else:
-                messagebox.showerror("Erro", "Senha incorreta. Acesso negado.")
-                return False
+        senha_digitada = simpledialog.askstring(
+            "Senha", 
+            "Digite a senha do cliente ", 
+            show="*",
+            parent=self.root)
+        response1 = requests.get(f"{API_URL_BANCO}/{banco_id}",timeout=5)
+        if response1.status_code != 200:
+            messagebox.showerror("Erro", "Falha ao obter banco.")
+            return False
+        object1 = response1.json()
+        senha_correta = object1.get("senha")
+        if senha_digitada == senha_correta:
+            messagebox.showinfo("Sucesso", "Senha correta. Acesso permitido.")
+            return True
+        else:
+            messagebox.showerror("Erro", "Senha incorreta. Acesso negado.")
+            return False
 
 if __name__ == "__main__":
 
