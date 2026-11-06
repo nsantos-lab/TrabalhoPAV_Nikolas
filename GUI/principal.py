@@ -114,12 +114,12 @@ class AcademicSystemApp:
 
 
         # ===== BUTTON FRAME CLIENTES=====
-        button_frame = tk.Frame(aba_clientes, bg="#f5f6fa")
-        button_frame.pack(pady=30)
+        button_frame_clientes = tk.Frame(aba_clientes, bg="#f5f6fa")
+        button_frame_clientes.pack(pady=30)
 
         # ==== DELETE CLIENTES BUTTON ====
         self.create_button(
-            button_frame,
+            button_frame_clientes,
             "Excluir",
             "#d63031",
             self.call_api_delete_cliente
@@ -127,7 +127,7 @@ class AcademicSystemApp:
 
         # ==== PUT CLIENTES BUTTON ====
         self.create_button(
-            button_frame,
+            button_frame_clientes,
             "Editar",
             "#e17055",
             self.call_api_put_cliente
@@ -135,7 +135,7 @@ class AcademicSystemApp:
 
         # ==== POST CLIENTES BUTTON ====
         self.create_button(
-            button_frame,
+            button_frame_clientes,
             "Cadastrar",
             "#0984e3",
             self.call_api_post_cliente
@@ -143,7 +143,7 @@ class AcademicSystemApp:
 
         # ==== GET CLIENTES BUTTON ====
         self.create_button(
-            button_frame,
+            button_frame_clientes,
             "Buscar",
             "#6c5ce7",
             self.call_api_get_cliente
@@ -151,7 +151,7 @@ class AcademicSystemApp:
 
         # ===== CLEAR CLIENTES BUTTON =====
         self.create_button(
-            button_frame,
+            button_frame_clientes,
             "Limpar",
             "#636e72",
             self.clear_fields_cliente
@@ -166,7 +166,7 @@ class AcademicSystemApp:
             button_frame_bancos,
             "Excluir",
             "#d63031",
-            self.call_api_delete_banco
+            self.call_api_delete_cliente
         ).grid(row=0, column=0, padx=8)
 
         # ==== GET BANCOS BUTTON ====
@@ -174,7 +174,7 @@ class AcademicSystemApp:
             button_frame_bancos,
             "Editar",
             "#e17055",
-            self.call_api_put_banco
+            self.call_api_put_cliente
         ).grid(row=0, column=1, padx=8)
 
         # ==== POST BANCOS BUTTON ====
@@ -182,7 +182,7 @@ class AcademicSystemApp:
             button_frame_bancos,
             "Cadastrar",
             "#0984e3",
-            self.call_api_post_banco
+            self.call_api_post_cliente
         ).grid(row=0, column=2, padx=8)
 
         # ==== GET BANCOS BUTTON ====
@@ -195,7 +195,7 @@ class AcademicSystemApp:
 
         # ===== CLEAR BANCOS BUTTON =====
         self.create_button(
-            button_frame,
+            button_frame_bancos,
             "Limpar",
             "#636e72",
             self.clear_fields_banco
@@ -313,6 +313,8 @@ class AcademicSystemApp:
         self.entry_id.delete(0, tk.END)
         self.entry_id.insert(0, str(client_id))
 
+    # ==== CALL_API_CLIENTES ==== #
+
     def clear_fields_cliente(self):
         self.entry_id_cliente.delete(0, tk.END)
         self.entry_nome.delete(0, tk.END)
@@ -322,12 +324,6 @@ class AcademicSystemApp:
         self.entry_dados_publicos_cliente.delete(0, tk.END)
         self.entry_data_nascimento.delete(0, tk.END)
         self.entry_data_cadastro_cliente.delete(0, tk.END)
-
-    def clear_fields_banco(self):
-        self.entry_id_banco.delete(0, tk.END)
-        self.entry_cliente_banco.delete(0, tk.END)
-        self.entry_dinheiro.delete(0, tk.END)
-        self.entry_senha.delete(0, tk.END)
 
     def call_api_get_cliente(self):
         cliente_id = self.entry_id_cliente.get()
@@ -367,6 +363,94 @@ class AcademicSystemApp:
         except Exception as e:
             messagebox.showerror("Erro", str(e))
 
+    def call_api_post_cliente(self):
+        try:
+            data = {
+                "nome": self.entry_nome.get(),
+                "cpf": self.entry_cpf.get(),
+                "email": self.entry_email.get(),
+                "telefone": self.entry_telefone.get(),
+                "dados_publicos": self.entry_dados_publicos_cliente.get(),
+                "data_nascimento": self.entry_data_nascimento.get()
+            }
+
+            response = requests.post(API_URL_CLIENTE, data=data)
+
+            if response.status_code in [200, 201]:
+                messagebox.showinfo("Sucesso", "Cliente cadastrado com sucesso")
+                self.load_clients()
+            else:
+                messagebox.showerror("Erro", response.text)
+
+        except Exception as e:
+            messagebox.showerror("Erro", str(e))
+
+    def call_api_put_cliente(self):
+        try:
+            cliente_id = self.entry_id_cliente.get()
+
+            response = requests.get(f"{API_URL_CLIENTE}/{cliente_id}")
+            object = response.json()
+            dados_publicos1 = object.get("dados_publicos")
+            if dados_publicos1 is False:
+                if not self.pede_senha_id_cliente(cliente_id):
+                    return
+
+            data = {
+                "nome": self.entry_nome.get(),
+                "cpf": self.entry_cpf.get(),
+                "email": self.entry_email.get(),
+                "telefone": self.entry_telefone.get(),
+                "dados_publicos": self.entry_dados_publicos_cliente.get(),
+                "data_nascimento": self.entry_data_nascimento.get()
+            }
+
+            response = requests.put(f"{API_URL_CLIENTE}/{cliente_id}", data=data)
+
+            if response.status_code in [200, 201]:
+                messagebox.showinfo("Sucesso", "Cliente atualizado com sucesso")
+                self.load_clients()
+            else:
+                messagebox.showerror("Erro", response.text)
+
+        except Exception as e:
+            messagebox.showerror("Erro", str(e))
+
+    def call_api_delete_cliente(self):
+        cliente_id = self.entry_id.get()
+
+        if not cliente_id:
+            messagebox.showwarning("Aviso", "Informe o ID do cliente")
+            return
+
+        response = requests.get(f"{API_URL_CLIENTE}/{cliente_id}")
+        object = response.json()
+        dados_publicos1 = object.get("dados_publicos")
+        if dados_publicos1 is False:
+            if not self.pede_senha_id_cliente(cliente_id):
+                return
+
+        try:
+            response = requests.delete(f"{API_URL_CLIENTE}/{cliente_id}")
+
+            if response.status_code == 200:
+                messagebox.showinfo("Sucesso", "Cliente removido com sucesso")
+                self.clear_fields()
+                self.load_clients()
+            else:
+                messagebox.showerror("Erro", response.text)
+
+        except Exception as e:
+            messagebox.showerror("Erro", str(e))
+
+    # ==== CALL_API_BANCOS ==== #
+
+    def clear_fields_banco(self):
+        self.entry_id_banco.delete(0, tk.END)
+        self.entry_cliente_banco.delete(0, tk.END)
+        self.entry_dinheiro.delete(0, tk.END)
+        self.entry_senha.delete(0, tk.END)
+
     def call_api_get_banco(self):   
         id_banco = self.entry_id_banco.get()
 
@@ -402,89 +486,13 @@ class AcademicSystemApp:
         except Exception as e:
             messagebox.showerror("Erro", str(e))
 
-    def call_api_post_cliente(self):
+    
 
-        try:
-            data = {
-                "nome": self.entry_nome.get(),
-                "cpf": self.entry_cpf.get(),
-                "email": self.entry_email.get(),
-                "telefone": self.entry_telefone.get(),
-                "dados_publicos": self.entry_dados_publicos.get(),
-                "data_nascimento": self.entry_data_nascimento.get()
-            }
 
-            response = requests.post(API_URL_CLIENTE, data=data)
 
-            if response.status_code in [200, 201]:
-                messagebox.showinfo("Sucesso", "Cliente cadastrado com sucesso")
-                self.clear_fields()
-                self.load_clients()
-            else:
-                messagebox.showerror("Erro", response.text)
+    
 
-        except Exception as e:
-            messagebox.showerror("Erro", str(e))
-
-    def call_api_put_cliente(self):
-        try:
-            cliente_id = self.entry_id.get()
-
-            response = requests.get(f"{API_URL_CLIENTE}/{cliente_id}")
-            object = response.json()
-            dados_publicos1 = object.get("dados_publicos")
-            if dados_publicos1 is False:
-                if not self.pede_senha_id_cliente(cliente_id):
-                    return
-
-            data = {
-                "nome": self.entry_nome.get(),
-                "cpf": self.entry_cpf.get(),
-                "email": self.entry_email.get(),
-                "telefone": self.entry_telefone.get(),
-                "dados_publicos": self.entry_dados_publicos.get(),
-                "data_nascimento": self.entry_data_nascimento.get()
-            }
-
-            response = requests.put(f"{API_URL_CLIENTE}/{cliente_id}", data=data)
-
-            if response.status_code in [200, 201]:
-                messagebox.showinfo("Sucesso", "Cliente atualizado com sucesso")
-                self.clear_fields()
-                self.load_clients()
-            else:
-                messagebox.showerror("Erro", response.text)
-
-        except Exception as e:
-            messagebox.showerror("Erro", str(e))
-
-    def call_api_delete_cliente(self):
-
-        cliente_id = self.entry_id.get()
-
-        if not cliente_id:
-            messagebox.showwarning("Aviso", "Informe o ID do cliente")
-            return
-
-        response = requests.get(f"{API_URL_CLIENTE}/{cliente_id}")
-        object = response.json()
-        dados_publicos1 = object.get("dados_publicos")
-        if dados_publicos1 is False:
-            if not self.pede_senha_id_cliente(cliente_id):
-                return
-
-        try:
-            response = requests.delete(f"{API_URL_CLIENTE}/{cliente_id}")
-
-            if response.status_code == 200:
-                messagebox.showinfo("Sucesso", "Cliente removido com sucesso")
-                self.clear_fields()
-                self.load_clients()
-            else:
-                messagebox.showerror("Erro", response.text)
-
-        except Exception as e:
-            messagebox.showerror("Erro", str(e))
+    # ======================================== #
 
     def pede_senha_id_cliente(self, cliente_id):
         
@@ -538,7 +546,25 @@ class AcademicSystemApp:
         messagebox.showerror("Putz", "nao deveria chegar aqui, mas chegou")
         return False
 
-    
+    def pede_senha(self, banco_id):
+        senha_digitada = simpledialog.askstring(
+            "Senha", 
+            "Digite a senha do cliente ", 
+            show="*",
+            parent=self.root)
+        response1 = requests.get(f"{API_URL_BANCO}/{banco_id}",timeout=5)
+        if response1.status_code != 200:
+            messagebox.showerror("Erro", "Falha ao obter banco.")
+            return False
+        object1 = response1.json()
+        senha_correta = object1.get("senha")
+        if senha_digitada == senha_correta:
+            messagebox.showinfo("Sucesso", "Senha correta. Acesso permitido.")
+            return True
+        else:
+            messagebox.showerror("Erro", "Senha incorreta. Acesso negado.")
+            return False
+        
 #==================COMECANDO BANCOS==================================#
 #==================COMECANDO BANCOS==================================#
 
