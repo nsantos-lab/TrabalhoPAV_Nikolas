@@ -160,13 +160,13 @@ class AcademicSystemApp:
         self.client_list.heading("nascimento", text="Nascimento")
         self.client_list.heading("data_cadastro", text="Data de Cadastro")
 
-        self.client_list.column("id", width=5, anchor="center")
-        self.client_list.column("nome", width=50)
-        self.client_list.column("cpf", width=35)
+        self.client_list.column("id", width=50, minwidth=0, stretch=False, anchor="center")
+        self.client_list.column("nome", width=90, minwidth=0, stretch=False, anchor="center")
+        self.client_list.column("cpf", width=75, minwidth=0, stretch=False, anchor="center")
         self.client_list.column("email", width=100)
-        self.client_list.column("telefone", width=35)
-        self.client_list.column("dados_publicos", width=0)
-        self.client_list.column("nascimento", width=30)
+        self.client_list.column("telefone", width=75, minwidth=0, stretch=False, anchor="center")
+        self.client_list.column("dados_publicos", width=0, anchor="center")
+        self.client_list.column("nascimento", width=75, minwidth=0, stretch=False, anchor="center")
         self.client_list.column("data_cadastro", width=50)
         client_scrollbar = tk.Scrollbar(
             client_list_frame,
@@ -285,7 +285,7 @@ class AcademicSystemApp:
 
 
         self.banco_list.column("id", width=5, anchor="center")
-        self.banco_list.column("cliente", width=5)
+        self.banco_list.column("cliente", width=5, anchor="center")
         self.banco_list.column("dinheiro", width=35)
         self.banco_list.column("senha", width=20)
         
@@ -422,18 +422,18 @@ class AcademicSystemApp:
         self.ambiente_list.heading("umidade", text="Umidade")
         self.ambiente_list.heading("densidade", text="Densidade")
         self.ambiente_list.heading("publicos", text="Publico")
-        self.ambiente_list.heading("cadastro", text="Cadastro")
+        self.ambiente_list.heading("cadastro", text="Data de Cadastro")
 
 
-        self.ambiente_list.column("id", width=5, anchor="center")
-        self.ambiente_list.column("cliente", width=5)
-        self.ambiente_list.column("oxigenio", width=20)
-        self.ambiente_list.column("carbonico", width=20)
-        self.ambiente_list.column("poluentes", width=20)
-        self.ambiente_list.column("umidade", width=20)
-        self.ambiente_list.column("densidade", width=20)
-        self.ambiente_list.column("publicos", width=20)
-        self.ambiente_list.column("cadastro", width=10)
+        self.ambiente_list.column("id", width=50, minwidth=0, stretch=False, anchor="center")
+        self.ambiente_list.column("cliente", width=50, minwidth=0, stretch=False, anchor="center")
+        self.ambiente_list.column("oxigenio", width=70, minwidth=0, stretch=False, anchor="center")
+        self.ambiente_list.column("carbonico", width=70, minwidth=0, stretch=False, anchor="center")
+        self.ambiente_list.column("poluentes", width=70, minwidth=0, stretch=False, anchor="center")
+        self.ambiente_list.column("umidade", width=70, minwidth=0, stretch=False, anchor="center")
+        self.ambiente_list.column("densidade", width=70, minwidth=0, stretch=False, anchor="center")
+        self.ambiente_list.column("publicos", width=60, minwidth=0, stretch=False, anchor="center")
+        self.ambiente_list.column("cadastro", width=0, anchor="center")
         
         ambiente_scrollbar = tk.Scrollbar(
             ambiente_list_frame,
@@ -446,13 +446,13 @@ class AcademicSystemApp:
         self.ambiente_list.bind("<<ListboxSelect>>", self.select_banco)
 
         self.create_button(
-            aba_bancos,
+            aba_ambientes,
             "Atualizar lista",
             "#00b894",
-            self.load_bancos
+            self.load_ambientes
         ).pack(pady=(8, 15))
 
-        self.root.after(100, self.load_bancos)
+        self.root.after(100, self.load_ambientes)
 
 
 
@@ -865,21 +865,20 @@ class AcademicSystemApp:
             messagebox.showerror("Erro", str(e))
 
     def call_api_put_ambiente(self):
-        return
         try:
             ambiente_id = self.entry_id.get()
 
             data = {
-                "cliente": self.entry_cliente.get(),
-                "oxigenio": self.entry_oxigenio.get(),
-                "carbonico": self.entry_carbonico.get(),
-                "poluentes": self.entry_poluentes.get(),
-                "umidade": self.entry_umidade.get(),
-                "densidade": self.entry_densidade.get(),
-                "dados_publicos": self.entry_dados_publicos.get()
+                "cliente": self.entry_cliente_ambiente.get(),
+                "oxigenio": self.entry_oxigenio_ambiente.get(),
+                "carbonico": self.entry_carbonico_ambiente.get(),
+                "poluentes": self.entry_poluentes_ambiente.get(),
+                "umidade": self.entry_umidade_ambiente.get(),
+                "densidade": self.entry_densidade_ambiente.get(),
+                "dados_publicos": self.entry_dados_publicos_ambiente.get()
             }
 
-            response = requests.put(f"{API_URL}/{ambiente_id}", data=data)
+            response = requests.put(f"{API_URL_AMBIENTE}/{ambiente_id}", data=data)
             if response.status_code in [200, 201]:
                 messagebox.showinfo("Sucesso", "Ambiente atualizado com sucesso")
                 self.clear_fields()
@@ -889,16 +888,15 @@ class AcademicSystemApp:
             messagebox.showerror("Erro", str(e))
 
     def call_api_delete_ambiente(self):
-        return
-        ambiente_id = self.entry_id.get()
+        ambiente_id = self.entry_id_ambiente.get()
         if not ambiente_id:
             messagebox.showwarning("Aviso", "Informe o ID do ambiente")
             return
         try:
-            if not self.ambiente_permite_operacao(ambiente_id):
+            if not self.ambiente_publico(ambiente_id):
                 messagebox.showwarning("Aviso", "Os dados desse ambiente são privados, logo vc nao pode deletar.")
                 return
-            response = requests.delete(f"{API_URL}/{ambiente_id}")
+            response = requests.delete(f"{API_URL_AMBIENTE}/{ambiente_id}")
             if response.status_code == 200:
                 messagebox.showinfo("Sucesso", "Ambiente removido com sucesso")
                 self.clear_fields()
@@ -917,22 +915,37 @@ class AcademicSystemApp:
 
             self.ambiente_list.delete(*self.ambiente_list.get_children())
             for ambiente in ambientes:
-                ambiente_id = ambiente["id_ambiente"]
+                ambiente_id = ambiente["id"]
                 cliente_id_ambiente = ambiente.get("cliente")
                 oxigenio = ambiente.get("oxigenio")
                 carbonico = ambiente.get("carbonico")
                 poluentes = ambiente.get("poluentes")
                 umidade = ambiente.get("umidade")
                 densidade = ambiente.get("densidade")
-                poluentes = ambiente.get("poluentes")
+                dados_publicos = ambiente.get("dados_publicos")
+                data_cadastro = ambiente.get("data_cadastro")
 
-                self.banco_list.insert(
+                self.ambiente_list.insert(
                     "",
                     tk.END,
-                    values=(banco_id, cliente_id_banco, dinheiro, senha)
+                    values=(ambiente_id, cliente_id_ambiente, oxigenio, carbonico, poluentes, umidade, densidade, dados_publicos, data_cadastro)
                 )
         except (requests.RequestException, ValueError, KeyError) as error:
-            messagebox.showerror("Erro", f"Não foi possível carregar os bancos: {error}")
+            messagebox.showerror("Erro", f"Não foi possível carregar os ambientes: {error}")
+    
+    def select_ambiente(self, _event):
+        selection = self.ambiente_list.selection()
+        if not selection:
+            return
+
+        ambiente_id = self.ambiente_list.item(selection[0], "values")[0]
+        self.entry_id_ambiente.delete(0, tk.END)
+        self.entry_id_ambiente.insert(0, str(ambiente_id))
+    
+    
+    # ======================================== #
+    # ======================================== #
+    # ======================================== #
     # ======================================== #
 
     def pede_senha_id_cliente(self, cliente_id):
@@ -1005,7 +1018,27 @@ class AcademicSystemApp:
         else:
             messagebox.showerror("Erro", "Senha incorreta. Acesso negado.")
             return False
+
+    def ambiente_publico(self, ambiente_id):
+           
+        response = requests.get(f"{API_URL_AMBIENTE}/{ambiente_id}",timeout=5)
+        ambiente = response.json()
+
+        if "dados_publicos" not in ambiente:
+            messagebox.showerror("Erro", "Campo 'dados_publicos' não encontrado na resposta da API")
+            return False
+
+        if (ambiente["dados_publicos"] == True):
+            #messagebox.showwarning("True", "só")
+            return True
+        if (ambiente["dados_publicos"] == False):
+            #messagebox.showwarning("False", "só")
+            return False
         
+        messagebox.showerror("Putz", "nao deveria chegar aqui, mas chegou")
+        return False
+
+    
 #==================COMECANDO BANCOS==================================#
 #==================COMECANDO BANCOS==================================#
 
