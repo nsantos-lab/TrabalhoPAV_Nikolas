@@ -164,7 +164,7 @@ class AcademicSystemApp:
         )
         self.entry_densidade.grid(row=6, column=1, padx=20, pady=10, ipady=8)
 
-                # ===== DADOS_PUBLICOS =====
+        # ===== DADOS_PUBLICOS =====
         lbl_dados_publicos = tk.Label(
             form_frame,
             text="Dados Públicos:",
