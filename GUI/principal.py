@@ -208,11 +208,6 @@ class AcademicSystemApp(ClientesTab, BancosTab, AmbientesTab, AmbienteTempoTab, 
         messagebox.showwarning("Aviso", "Saldo insuficiente.")
         return False
 
-
-
-
-
-
 if __name__ == "__main__":
     root = tk.Tk()
     app = AcademicSystemApp(root)

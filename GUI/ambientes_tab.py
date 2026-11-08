@@ -262,17 +262,25 @@ class AmbientesTab:
             messagebox.showerror("Erro", str(e))
 
     def call_api_put_ambiente(self):
+        ambiente_id = self.entry_id_ambiente.get()
+        if not ambiente_id:
+            messagebox.showwarning("Aviso", "Informe o ID do ambiente")
+            return
+
         try:
-            response = requests.get(f"{API_URL_AMBIENTE}/{self.entry_id_ambiente}", timeout=5)
+            response = requests.get(f"{API_URL_AMBIENTE}/{ambiente_id}", timeout=5)
 
             if response.status_code == 404:
                 messagebox.showwarning("Aviso", "Ambiente nao encontrado")
+                return
+            if response.status_code != 200:
+                messagebox.showerror("Erro", format_api_error(response, "verificar ambiente"))
                 return
 
         except requests.RequestException as error:
             messagebox.showerror("Erro", f"Não foi possível verificar o ambiente: {error}")
             return
-        ambiente_id = self.entry_id_ambiente.get()
+        
         id_cliente = self.get_cliente_ambiente(ambiente_id)
         id_banco = self.get_banco_cliente(id_cliente)
         precisa_senha=0

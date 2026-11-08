@@ -38,7 +38,7 @@ class ProdutosTab:
         self.entry_tipo = self.criar_campo(form_frame_produto, "Tipo:", 2, 0)
 
          # ===== PRECO =====
-        self.entry_preco = self.criar_campo(form_frame_produto, "Precço:", 0, 3)
+        self.entry_preco = self.criar_campo(form_frame_produto, "Preço:", 0, 3)
 
         # ===== POTENCIA =====
         self.entry_potencia = self.criar_campo(form_frame_produto, "Potencia:", 1, 3)
@@ -227,19 +227,25 @@ class ProdutosTab:
         except Exception as e:
             messagebox.showerror("Erro", str(e))
 
-    def call_api_put_produto(self):       
+    def call_api_put_produto(self):
+        produto_id = self.entry_id_produto.get()
+        if not produto_id:
+            messagebox.showwarning("Aviso", "Informe o ID do ambiente")
+            return   
         try:
             response = requests.get(f"{API_URL_PRODUTO}/{self.entry_id_produto.get()}", timeout=5)
 
             if response.status_code == 404:
                 messagebox.showwarning("Aviso", "Produto nao encontrado")
                 return
+            if response.status_code != 200:
+                messagebox.showerror("Erro", format_api_error(response, "verificar ambiente"))
+                return
 
         except requests.RequestException as error:
             messagebox.showerror("Erro", f"Não foi possível verificar o produto: {error}")
             return
 
-        produto_id = self.entry_id_produto.get()
         ambiente_id = self.get_ambiente_produto(produto_id)
         id_cliente = self.get_cliente_ambiente(ambiente_id)
         id_banco = self.get_banco_cliente(id_cliente)
@@ -254,24 +260,15 @@ class ProdutosTab:
             if not self.pede_senha(id_banco):
                 return
 
-        try:
-            id_produto = self.entry_id_produto.get()
-            if not self.produto_permite_operacao(id_produto):
-                messagebox.showwarning("Aviso", "Os dados desse produto pertencem a um ambiente privado, " \
-                                        "logo vc nao pode atualizar.")
-                
-                if not self.pedir_validar_senha(id_produto):
-                    return
-            
-
+        try:     
             data = {
-                "id_ambiente": self.entry_ambiente.get(),
+                "id_ambiente": self.entry_ambiente_produto.get(),
                 "tipo": self.entry_tipo.get(),
                 "preco": self.entry_preco.get(),
                 "potencia": self.entry_potencia.get()
             }
 
-            response = requests.put(f"{API_URL_PRODUTO}/{id_produto}", data=data)
+            response = requests.put(f"{API_URL_PRODUTO}/{produto_id}", data=data)
 
             if response.status_code in [200, 201]:
                 messagebox.showinfo("Sucesso", "Produto atualizado com sucesso")
