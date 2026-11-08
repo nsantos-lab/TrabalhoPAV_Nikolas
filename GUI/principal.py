@@ -7,18 +7,20 @@ if __package__:
     from .ambientes_tab import AmbientesTab
     from .bancos_tab import BancosTab
     from .clientes_tab import ClientesTab
-    from .api_urls import API_URL_AMBIENTE, API_URL_AMBIENTE_TEMPO, API_URL_BANCO, API_URL_BANCO_BY_CLIENTE, API_URL_CLIENTE
-    from .produtos_tab import build_produtos_tab
+    from .produtos_tab import ProdutosTab
+    from .api_urls import API_URL_AMBIENTE, API_URL_AMBIENTE_TEMPO, API_URL_BANCO, API_URL_BANCO_BY_CLIENTE, API_URL_CLIENTE, API_URL_PRODUTO
+    
 else:
     from ambiente_tempo_tab import AmbienteTempoTab
     from ambientes_tab import AmbientesTab
     from bancos_tab import BancosTab
     from clientes_tab import ClientesTab
-    from api_urls import API_URL_AMBIENTE, API_URL_AMBIENTE_TEMPO, API_URL_BANCO, API_URL_BANCO_BY_CLIENTE, API_URL_CLIENTE
-    from produtos_tab import build_produtos_tab
+    from produtos_tab import ProdutosTab
+    from api_urls import API_URL_AMBIENTE, API_URL_AMBIENTE_TEMPO, API_URL_BANCO, API_URL_BANCO_BY_CLIENTE, API_URL_CLIENTE, API_URL_PRODUTO
+    
 
 
-class AcademicSystemApp(ClientesTab, BancosTab, AmbientesTab, AmbienteTempoTab):
+class AcademicSystemApp(ClientesTab, BancosTab, AmbientesTab, AmbienteTempoTab, ProdutosTab):
     def __init__(self, root):
 
         self.root = root
@@ -49,7 +51,7 @@ class AcademicSystemApp(ClientesTab, BancosTab, AmbientesTab, AmbienteTempoTab):
         self.build_clientes_tab(notebook)
         self.build_bancos_tab(notebook)
         self.build_ambientes_tab(notebook)
-        build_produtos_tab(notebook)
+        self.build_produtos_tab(notebook)
         self.build_ambiente_tempo_tab(notebook)
 
     def create_button(self, parent, text, color, command):
@@ -110,6 +112,13 @@ class AcademicSystemApp(ClientesTab, BancosTab, AmbientesTab, AmbienteTempoTab):
         #messagebox.showwarning("Aviso", "Ambiente ID: " + str(ambiente_id))
         return ambiente_id
 
+    def get_ambiente_produto(self, id_produto):
+        response = requests.get(f"{API_URL_PRODUTO}/{id_produto}",timeout=5)
+        ambiente_tempo = response.json()
+        ambiente_id = ambiente_tempo.get("id_ambiente")
+        #messagebox.showwarning("Aviso", "Ambiente ID: " + str(ambiente_id))
+        return ambiente_id
+    
     def cliente_publico(self, cliente_id):
         response = requests.get(f"{API_URL_CLIENTE}/{cliente_id}", timeout=5)
         cliente = response.json()
@@ -164,6 +173,44 @@ class AcademicSystemApp(ClientesTab, BancosTab, AmbientesTab, AmbienteTempoTab):
         else:
             messagebox.showerror("Erro", "Senha incorreta. Acesso negado.")
             return False
+
+    def validar_pagamento(self, banco_id, preco_produto):
+        response2 = requests.get(f"{API_URL_BANCO}/{banco_id}",timeout=5)
+        object2 = response2.json()
+        dinheiro_banco = float(object2.get("dinheiro"))
+
+        messagebox.showinfo("Info", f"Saldo do banco: {dinheiro_banco}, Preço do produto: {preco_produto}")
+
+        if dinheiro_banco >= preco_produto:
+            dinheiro_restante = dinheiro_banco - preco_produto
+            try:
+                id_banco = object2.get("id_banco")
+                data = {
+                    "id_cliente": object2.get("id_cliente"),
+                    "dinheiro": dinheiro_restante,
+                    "senha": object2.get("senha")
+                }
+
+                response = requests.put(f"{API_URL_BANCO}/{id_banco}", data=data)
+
+                if response.status_code in [200, 201]:
+                    messagebox.showinfo("Sucesso", "Banco atualizado com sucesso")
+                else:
+                    messagebox.showerror("Erro", response.text)
+                    return False
+    
+            except Exception as e:
+                messagebox.showerror("Erro", str(e))
+                return False
+
+            return True
+
+        messagebox.showwarning("Aviso", "Saldo insuficiente.")
+        return False
+
+
+
+
 
 
 if __name__ == "__main__":

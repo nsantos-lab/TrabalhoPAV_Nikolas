@@ -194,6 +194,7 @@ class AmbientesTab:
                         return
 
                 data = response.json()
+                
                 self.entry_cliente_ambiente.delete(0, tk.END)
                 self.entry_cliente_ambiente.insert(0, data.get("cliente", ""))
                 self.entry_oxigenio_ambiente.delete(0, tk.END)
