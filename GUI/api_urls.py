@@ -1,0 +1,5 @@
+API_URL_CLIENTE = "http://127.0.0.1:5000/trabalhopav/clientes"
+API_URL_BANCO = "http://127.0.0.1:5000/trabalhopav/bancos"
+API_URL_BANCO_BY_CLIENTE = "http://127.0.0.1:5000/trabalhopav/bancos/cliente"
+API_URL_AMBIENTE = "http://127.0.0.1:5000/trabalhopav/ambientes"
+API_URL_AMBIENTE_TEMPO = "http://127.0.0.1:5000/trabalhopav/ambientes_tempo"
