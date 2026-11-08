@@ -347,11 +347,19 @@ class ProdutosTab:
                 preco = produto.get("preco")
                 potencia = produto.get("potencia")
 
-                self.produto_list.insert(
-                    "",
-                    tk.END,
-                    values=(produto_id, ambiente_id_produto, tipo, preco, potencia)
-                )
+                cliente_id = self.get_cliente_ambiente(ambiente_id_produto)
+                if not self.cliente_publico(cliente_id) or not self.ambiente_publico(ambiente_id_produto):
+                    self.produto_list.insert(
+                        "",
+                        tk.END,
+                        values=(produto_id, ambiente_id_produto, "Protegido", "Protegido", "Protegido")
+                    )
+                else:
+                    self.produto_list.insert(
+                        "",
+                        tk.END,
+                        values=(produto_id, ambiente_id_produto, tipo, preco, potencia)
+                    )
         except (requests.RequestException, ValueError, KeyError) as error:
             messagebox.showerror("Erro", f"Não foi possível carregar os produtos: {error}")
 

@@ -375,11 +375,18 @@ class AmbientesTab:
                 dados_publicos = ambiente.get("dados_publicos")
                 data_cadastro = ambiente.get("data_cadastro")
 
-                self.ambiente_list.insert(
-                    "",
-                    tk.END,
-                    values=(ambiente_id, cliente_id_ambiente, oxigenio, carbonico, poluentes, umidade, densidade, dados_publicos, data_cadastro)
-                )
+                if not self.cliente_publico(cliente_id_ambiente) or dados_publicos == 0:
+                    self.ambiente_list.insert(
+                        "",
+                        tk.END,
+                        values=(ambiente_id, cliente_id_ambiente, "Protegido", "Protegido", "Protegido", "Protegido", "Protegido", dados_publicos, "Protegido")
+                    )
+                else:
+                    self.ambiente_list.insert(
+                        "",
+                        tk.END,
+                        values=(ambiente_id, cliente_id_ambiente, oxigenio, carbonico, poluentes, umidade, densidade, dados_publicos, data_cadastro)
+                    )
         except (requests.RequestException, ValueError, KeyError) as error:
             messagebox.showerror("Erro", f"Não foi possível carregar os ambientes: {error}")
 

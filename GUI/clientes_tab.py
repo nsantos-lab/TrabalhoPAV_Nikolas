@@ -300,11 +300,18 @@ class ClientesTab:
                 nascimento = client.get("data_nascimento")
                 data_cadastro = client.get("data_cadastro")
 
-                self.client_list.insert(
-                    "",
-                    tk.END,
-                    values=(client_id, name, cpf, email, telefone, dados_publicos, nascimento, data_cadastro)
-                )
+                if dados_publicos == 0:
+                    self.client_list.insert(
+                        "",
+                        tk.END,
+                        values=(client_id, "Protegido", "Protegido", "Protegido", "Protegido", dados_publicos, "Protegido", "Protegido")
+                    )
+                else:
+                    self.client_list.insert(
+                        "",
+                        tk.END,
+                        values=(client_id, name, cpf, email, telefone, dados_publicos, nascimento, data_cadastro)
+                    )
         except (requests.RequestException, ValueError, KeyError) as error:
             messagebox.showerror("Erro", f"Não foi possível carregar os clientes: {error}")
 

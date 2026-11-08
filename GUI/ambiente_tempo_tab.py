@@ -348,11 +348,19 @@ class AmbienteTempoTab:
                 densidade = ambiente_tempo.get("densidade")
                 data_cadastro = ambiente_tempo.get("data_cadastro")
 
-                self.ambiente_tempo_list.insert(
-                    "",
-                    tk.END,
-                    values=(ambiente_tempo_id, ambiente_id_ambiente, oxigenio, carbonico, poluentes, umidade, densidade, data_cadastro)
-                )
+                cliente_id = self.get_cliente_ambiente(ambiente_id_ambiente)
+                if not self.cliente_publico(cliente_id) or not self.ambiente_publico(ambiente_id_ambiente):
+                    self.ambiente_tempo_list.insert(
+                        "",
+                        tk.END,
+                        values=(ambiente_tempo_id, ambiente_id_ambiente, "Protegido", "Protegido", "Protegido", "Protegido", "Protegido", data_cadastro)
+                    )
+                else:
+                    self.ambiente_tempo_list.insert(
+                        "",
+                        tk.END,
+                        values=(ambiente_tempo_id, ambiente_id_ambiente, oxigenio, carbonico, poluentes, umidade, densidade, data_cadastro)
+                    )
         except (requests.RequestException, ValueError, KeyError) as error:
             messagebox.showerror("Erro", f"Não foi possível carregar os tempos dos ambientes: {error}")
 

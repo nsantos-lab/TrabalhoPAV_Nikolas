@@ -7,3 +7,4 @@ logo será necessario instalar suas dependencias manualmente.
 
 Serve para fazer pesquisas no banco de dados:
     docker compose -f .\Banco_Dados\docker-compose.yml exec database mysql -uroot -proot trabalhopav -e "SELECT * FROM cliente;"
+    docker compose -f .\Banco_Dados\docker-compose.yml exec database mysql -uroot -proot trabalhopav -e "SET GLOBAL event_scheduler = ON;"

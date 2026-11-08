@@ -286,11 +286,18 @@ class BancosTab:
                 dinheiro = banco.get("dinheiro")
                 senha = banco.get("senha")
 
-                self.banco_list.insert(
-                    "",
-                    tk.END,
-                    values=(banco_id, cliente_id_banco, dinheiro, senha)
-                )
+                if not self.cliente_publico(cliente_id_banco):
+                    self.banco_list.insert(
+                        "",
+                        tk.END,
+                        values=(banco_id, cliente_id_banco, "Protegido", "Protegido")
+                    )
+                else:
+                    self.banco_list.insert(
+                        "",
+                        tk.END,
+                        values=(banco_id, cliente_id_banco, dinheiro, senha)
+                    )
         except (requests.RequestException, ValueError, KeyError) as error:
             messagebox.showerror("Erro", f"Não foi possível carregar os bancos: {error}")
 
