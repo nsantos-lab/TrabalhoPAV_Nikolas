@@ -184,7 +184,7 @@ class ProdutosTab:
                 self.entry_potencia.insert(0, data.get("potencia", ""))
 
             else:
-                messagebox.showerror("Erro", format_api_error(response, "buscar banco"))
+                messagebox.showerror("Erro", format_api_error(response, "buscar produto"))
 
         except Exception as e:
             messagebox.showerror("Erro", str(e))
@@ -192,7 +192,22 @@ class ProdutosTab:
     def call_api_post_produto(self):
 
         try:
-            ambiente_id = self.entry_ambiente.get()
+            data = {
+                "id_ambiente": self.entry_ambiente_produto.get(),
+                "tipo": self.entry_tipo.get(),
+                "preco": self.entry_preco.get(),
+                "potencia": self.entry_potencia.get()
+            }
+
+            if any(not value.strip() for value in data.values()):
+                response = requests.post(API_URL_PRODUTO, data=data)
+                messagebox.showerror(
+                    "Erro",
+                    format_api_error(response, "cadastrar produto")
+                )
+                return
+
+            ambiente_id = self.entry_ambiente_produto.get()
             id_cliente = self.get_cliente_ambiente(ambiente_id)
             id_banco = self.get_banco_cliente(id_cliente)
             precisa_senha=0
@@ -208,13 +223,6 @@ class ProdutosTab:
 
             if not self.validar_pagamento(id_banco, float(self.entry_preco.get())):
                 return
-
-            data = {
-                "id_ambiente": self.entry_ambiente_produto.get(),
-                "tipo": self.entry_tipo.get(),
-                "preco": self.entry_preco.get(),
-                "potencia": self.entry_potencia.get()
-            }
 
             response = requests.post(API_URL_PRODUTO, data=data)
 

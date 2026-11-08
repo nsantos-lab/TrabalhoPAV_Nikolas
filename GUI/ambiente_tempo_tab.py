@@ -165,29 +165,29 @@ class AmbienteTempoTab:
         self.entry_data_cadastro_ambiente_tempo.delete(0, tk.END)
 
     def call_api_get_ambiente_tempo(self):
-
         ambiente_tempo_id = self.entry_id_ambiente_tempo.get()
-        ambiente_id = self.get_ambiente_ambiente_tempo(ambiente_tempo_id)
-        id_cliente = self.get_cliente_ambiente(ambiente_id)
-        id_banco = self.get_banco_cliente(id_cliente)
-        precisa_senha=0
-
         if not ambiente_tempo_id:
-            messagebox.showwarning("Aviso", "Informe o ID do tempo do ambiente")
-            return
+                    messagebox.showwarning("Aviso", "Informe o ID do tempo do ambiente")
+                    return
 
-        if not self.ambiente_publico(ambiente_id):
-            precisa_senha+=1
-        if not self.cliente_publico(id_cliente):
-            precisa_senha+=1
-
-        if not precisa_senha == 0:
-            if not self.pede_senha(id_banco):
-                return
         try:          
             response = requests.get(f"{API_URL_AMBIENTE_TEMPO}/{ambiente_tempo_id}")
 
             if response.status_code == 200:
+                ambiente_id = self.get_ambiente_ambiente_tempo(ambiente_tempo_id)
+                id_cliente = self.get_cliente_ambiente(ambiente_id)
+                id_banco = self.get_banco_cliente(id_cliente)
+                precisa_senha=0
+
+                if not self.ambiente_publico(ambiente_id):
+                    precisa_senha+=1
+                if not self.cliente_publico(id_cliente):
+                    precisa_senha+=1
+
+                if not precisa_senha == 0:
+                    if not self.pede_senha(id_banco):
+                        return
+
                 data = response.json()
 
                 self.entry_ambiente_ambiente_tempo.delete(0, tk.END)
@@ -214,6 +214,9 @@ class AmbienteTempoTab:
     def call_api_post_ambiente_tempo(self):
 
         ambiente_id = self.entry_ambiente_ambiente_tempo.get()
+        if not ambiente_id:
+            messagebox.showwarning("Aviso", "Informe o ID do ambiente")
+            return
         id_cliente = self.get_cliente_ambiente(ambiente_id)
         id_banco = self.get_banco_cliente(id_cliente)
         precisa_senha=0
@@ -246,19 +249,20 @@ class AmbienteTempoTab:
             else:
                 messagebox.showerror("Erro", format_api_error(response, "cadastrar tempo do ambiente"))
 
-        except Exception as e:
+        except Exception as e: 
             messagebox.showerror("Erro", str(e))
 
     def call_api_put_ambiente_tempo(self):
         ambiente_tempo_id = self.entry_id_ambiente_tempo.get()
-        ambiente_id = self.get_ambiente_ambiente_tempo(ambiente_tempo_id)
-        id_cliente = self.get_cliente_ambiente(ambiente_id)
-        id_banco = self.get_banco_cliente(id_cliente)
-        precisa_senha=0
 
         if not ambiente_tempo_id:
             messagebox.showwarning("Aviso", "Informe o ID do tempo do ambiente")
             return
+        
+        ambiente_id = self.get_ambiente_ambiente_tempo(ambiente_tempo_id)
+        id_cliente = self.get_cliente_ambiente(ambiente_id)
+        id_banco = self.get_banco_cliente(id_cliente)
+        precisa_senha=0
 
         if not self.ambiente_publico(ambiente_id):
             precisa_senha+=1
@@ -292,14 +296,16 @@ class AmbienteTempoTab:
 
     def call_api_delete_ambiente_tempo(self):
         ambiente_tempo_id = self.entry_id_ambiente_tempo.get()
+        if not ambiente_tempo_id:
+            messagebox.showwarning("Aviso", "Informe o ID do tempo do ambiente")
+            return
+
         ambiente_id = self.get_ambiente_ambiente_tempo(ambiente_tempo_id)
         id_cliente = self.get_cliente_ambiente(ambiente_id)
         id_banco = self.get_banco_cliente(id_cliente)
         precisa_senha=0
 
-        if not ambiente_tempo_id:
-            messagebox.showwarning("Aviso", "Informe o ID do tempo do ambiente")
-            return
+
 
         if not self.ambiente_publico(ambiente_id):
             precisa_senha+=1
