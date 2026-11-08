@@ -100,7 +100,7 @@ class ProdutosTab:
             fg="#2d3436"
         ).pack(anchor="w", pady=(0, 5))
 
-        columns = ("id", "cliente", "dinheiro", "senha")
+        columns = ("id", "ambiente", "tipo", "preco", "potencia")
         self.produto_list = ttk.Treeview(
             produto_list_frame,
             columns=columns,
@@ -108,15 +108,17 @@ class ProdutosTab:
             height=12
         )
         self.produto_list.heading("id", text="ID")
-        self.produto_list.heading("cliente", text="Cliente")
-        self.produto_list.heading("dinheiro", text="Dinheiro")
-        self.produto_list.heading("senha", text="Senha")
+        self.produto_list.heading("ambiente", text="Ambiente")
+        self.produto_list.heading("tipo", text="Tipo")
+        self.produto_list.heading("preco", text="Preço")
+        self.produto_list.heading("potencia", text="Potencia")
 
 
         self.produto_list.column("id", width=5, anchor="center")
-        self.produto_list.column("cliente", width=5, anchor="center")
-        self.produto_list.column("dinheiro", width=35)
-        self.produto_list.column("senha", width=20)
+        self.produto_list.column("ambiente", width=5, anchor="center")
+        self.produto_list.column("tipo", width=35)
+        self.produto_list.column("preco", width=20)
+        self.produto_list.column("potencia", width=20)
         
         produto_scrollbar = tk.Scrollbar(
             produto_list_frame,
@@ -334,7 +336,7 @@ class ProdutosTab:
 
             self.produto_list.delete(*self.produto_list.get_children())
             for produto in produtos:
-                produto_id = produto["id_produto"]
+                produto_id = produto["id"]
                 ambiente_id_produto = produto.get("id_ambiente")
                 tipo = produto.get("tipo")
                 preco = produto.get("preco")
