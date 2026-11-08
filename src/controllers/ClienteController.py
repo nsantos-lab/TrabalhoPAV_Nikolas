@@ -1,13 +1,14 @@
+from flask_restful import Resource, abort, request
+from flask_apispec import marshal_with
+from flask_apispec.views import MethodResource
 import re
 
-from flask_restful import Resource, abort, request
-from flask_apispec import marshal_with, use_kwargs
-from flask_apispec.views import MethodResource
 from marshmallow import Schema, ValidationError, fields, validates
 from sqlalchemy.exc import IntegrityError, OperationalError
-from sqlalchemy.orm.exc import UnmappedInstanceError
 
 from src.services.ClienteService import getClientes, getCliente, addCliente, updateCliente, deleteCliente
+from src.exceptions import ResourceNotFoundError
+from src.controllers.responses import load_form, validation_error_response
 
 class ClienteResponseSchema(Schema): # Transforma dict em json
     id = fields.Int()
@@ -20,43 +21,29 @@ class ClienteResponseSchema(Schema): # Transforma dict em json
     data_cadastro = fields.DateTime()
 
 class ClienteRequestSchema(Schema): # Transforma json em dict
-    id = fields.Int()
-    nome = fields.Str()
-    cpf = fields.Str()
-    email = fields.Str()
-    telefone = fields.Str()
-    dados_publicos = fields.Bool()
-    data_nascimento = fields.Date()
-    data_cadastro = fields.DateTime()
+    nome = fields.Str(required=True)
+    cpf = fields.Str(required=True)
+    email = fields.Str(required=True)
+    telefone = fields.Str(required=True)
+    dados_publicos = fields.Bool(required=True)
+    data_nascimento = fields.Date(required=True)
 
-    @validates("id")
-    def validate_id(self, value):
-        if not re.match(pattern=r"^[0-9]+$", string=value):
-            raise ValidationError("Value must contain only numeric characters.")
     @validates("nome")
     def validate_name(self, value):
-        if not re.match(pattern=r"^[a-zA-Z0-9_\s]+$", string=value):
+        if not re.fullmatch(r"[a-zA-Z0-9_\s]+", value):
             raise ValidationError("Value must contain only alphanumeric and underscore characters.")
     @validates("cpf")
     def validate_cpf(self, value):
-        if not re.match(pattern=r"^[0-9]{11}$", string=value):
+        if not re.fullmatch(r"[0-9]{11}", value):
             raise ValidationError("Value must contain only 11 numeric characters.")
     @validates("email")
     def validate_email(self, value):
-        if not re.match(pattern=r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.([a-zA-Z0-9-.])+$", string=value):
+        if not re.fullmatch(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.([a-zA-Z0-9-.])+", value):
             raise ValidationError("Value must be in the format email@domain.com")
     @validates("telefone")
     def validate_telefone(self, value):
-        if not re.match(pattern=r"^[0-9]{11}$", string=value):
+        if not re.fullmatch(r"[0-9]{11}", value):
             raise ValidationError("Value must contain only 11 numeric characters.")
-    @validates("dados_publicos")
-    def validate_dados_publicos(self, value):
-        if not isinstance(value, bool):
-            raise ValidationError("Value must be a boolean.")
-    @validates("data_nascimento")
-    def validate_data_nascimento(self, value):
-        if not re.match(pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$", string=value):
-            raise ValidationError("Value must be in the format YYYY-MM-DD.")
 
 class ClienteItem(MethodResource, Resource):
     @marshal_with(ClienteResponseSchema)
@@ -65,20 +52,24 @@ class ClienteItem(MethodResource, Resource):
             # Camada de serviço para obter um cliente
             cliente = getCliente(cliente_id)
             if not cliente:
-                abort(404, message="Resource not found")
+                abort(404, message="Cliente não encontrado.")
             return cliente, 200
         except OperationalError:
             abort(500, message="Internal Server Error")
 
-    @use_kwargs(ClienteRequestSchema, location=("form"))
-    @marshal_with(ClienteResponseSchema)
-    def put(self, cliente_id, **kwargs):
+    def put(self, cliente_id):
+        kwargs, error_response = load_form(ClienteRequestSchema, request.form)
+        if error_response:
+            return error_response
         try:
-            # Camada de serviço para atualizar um cliente
             cliente = updateCliente(id=cliente_id, **kwargs)
-            return cliente, 201
+            return ClienteResponseSchema().dump(cliente), 201
+        except ValidationError as err:
+            return validation_error_response(err)
+        except ResourceNotFoundError as err:
+            return {"message": str(err)}, 404
         except IntegrityError as err:
-            abort(500, message=str(err.__context__))
+            abort(409, message=str(err.__context__))
         except OperationalError as err:
             abort(500, message=str(err.__context__))
         #finally:
@@ -93,6 +84,10 @@ class ClienteItem(MethodResource, Resource):
             return 204
         except OperationalError:
             abort(500, message="Internal Server Error")
+        except ResourceNotFoundError as err:
+            return {"message": str(err)}, 404
+        except IntegrityError as err:
+            abort(409, message=str(err.__context__))
 
 class ClienteList(MethodResource, Resource):
     # Transforma o objeto em json
@@ -104,14 +99,16 @@ class ClienteList(MethodResource, Resource):
         except OperationalError:
             abort(500, message="Internal Server Error")
 
-    @use_kwargs(ClienteRequestSchema, location=("form"))
-    @marshal_with(ClienteResponseSchema)
-    def post(self, **kwargs):
+    def post(self):
+        kwargs, error_response = load_form(ClienteRequestSchema, request.form)
+        if error_response:
+            return error_response
         try:
-            # Camada de serviço para inserir um cliente
             cliente = addCliente(**kwargs)
-            return cliente, 201
+            return ClienteResponseSchema().dump(cliente), 201
+        except ValidationError as err:
+            return validation_error_response(err)
         except IntegrityError as err:
-            abort(500, message=str(err.__context__))
+            abort(409, message=str(err.__context__))
         except OperationalError as err:
             abort(500, message=str(err.__context__))

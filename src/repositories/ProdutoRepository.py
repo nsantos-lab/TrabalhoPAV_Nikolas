@@ -1,5 +1,6 @@
 from src.entities.produto import Produto
 from src.entities.base import db
+from src.exceptions import ResourceNotFoundError
 
 def get_lista_produtos():
     produtos = db.session.query(Produto).all()
@@ -17,9 +18,8 @@ def add_produto(id_ambiente: int, tipo: str, preco: float, potencia: float):
 
 def update_produto(id: int, id_ambiente: int, tipo: str, preco: float, potencia: float) -> Produto:
     produto = db.session.query(Produto).get(id)
-    # Verifica se o produto existe
     if(not produto):
-        raise Exception
+        raise ResourceNotFoundError("Produto não encontrado.")
 
     produto.id_ambiente = id_ambiente
     produto.tipo = tipo
@@ -31,6 +31,8 @@ def update_produto(id: int, id_ambiente: int, tipo: str, preco: float, potencia:
 
 def delete_produto(produto_id):
     produto = db.session.query(Produto).get(produto_id)
+    if not produto:
+        raise ResourceNotFoundError("Produto não encontrado.")
     db.session.delete(produto)
     db.session.commit()
     return produto

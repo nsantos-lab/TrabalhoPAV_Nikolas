@@ -4,8 +4,10 @@ import requests
 
 if __package__:
     from .api_urls import API_URL_CLIENTE, API_URL_AMBIENTE
+    from .api_errors import format_api_error
 else:
     from api_urls import API_URL_CLIENTE, API_URL_AMBIENTE
+    from api_errors import format_api_error
 
 
 class AmbientesTab:
@@ -210,7 +212,7 @@ class AmbientesTab:
                 self.entry_data_cadastro_ambiente.insert(0, data.get("data_cadastro", ""))
 
             else:
-                messagebox.showerror("Erro", "Ambiente não encontrado")
+                messagebox.showerror("Erro", format_api_error(response, "buscar ambiente"))
 
         except Exception as e:
             messagebox.showerror("Erro", str(e))
@@ -254,7 +256,7 @@ class AmbientesTab:
                 
                 self.load_ambientes()
             else:
-                messagebox.showerror("Erro", "Cadastro nao sucedido")
+                messagebox.showerror("Erro", format_api_error(response, "cadastrar ambiente"))
         except Exception as e:
             messagebox.showerror("Erro", str(e))
 
@@ -299,7 +301,7 @@ class AmbientesTab:
                 messagebox.showinfo("Sucesso", "Ambiente atualizado com sucesso")
                 self.load_ambientes()
             else:
-                messagebox.showerror("Erro", response.text)
+                messagebox.showerror("Erro", format_api_error(response, "atualizar ambiente"))
         except Exception as e:
             messagebox.showerror("Erro", str(e))
 
@@ -335,12 +337,12 @@ class AmbientesTab:
         try:
 
             response = requests.delete(f"{API_URL_AMBIENTE}/{ambiente_id}")
-            if response.status_code == 200:
+            if response.status_code in [200, 204]:
                 messagebox.showinfo("Sucesso", "Ambiente removido com sucesso")
                 self.clear_fields_ambiente()
                 self.load_ambientes()
             else:
-                messagebox.showerror("Erro", response.text)
+                messagebox.showerror("Erro", format_api_error(response, "remover ambiente"))
         except Exception as e:
             messagebox.showerror("Erro", str(e))
 

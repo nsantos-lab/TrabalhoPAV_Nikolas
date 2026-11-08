@@ -1,6 +1,6 @@
-from datetime import date
 from src.entities.ambiente import Ambiente
 from src.entities.base import db
+from src.exceptions import ResourceNotFoundError
 
 def get_lista_ambientes():
     ambientes = db.session.query(Ambiente).all()
@@ -19,9 +19,8 @@ def add_ambiente(cliente_id: int, oxigenio: float, carbonico: float, poluentes: 
 
 def update_ambiente(id: int, cliente_id: int, oxigenio: float, carbonico: float, poluentes: float, umidade: float, densidade: float, dados_publicos: bool) -> Ambiente:
     ambiente = db.session.query(Ambiente).get(id)
-    # Verifica se o ambiente existe
     if(not ambiente):
-        raise Exception
+        raise ResourceNotFoundError("Ambiente não encontrado.")
 
     ambiente.cliente = cliente_id
     ambiente.oxigenio = oxigenio
@@ -36,6 +35,8 @@ def update_ambiente(id: int, cliente_id: int, oxigenio: float, carbonico: float,
 
 def delete_ambiente(ambiente_id):
     ambiente = db.session.query(Ambiente).get(ambiente_id)
+    if not ambiente:
+        raise ResourceNotFoundError("Ambiente não encontrado.")
     db.session.delete(ambiente)
     db.session.commit()
     return ambiente

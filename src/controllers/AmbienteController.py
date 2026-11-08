@@ -1,13 +1,12 @@
-import re
-
 from flask_restful import Resource, abort, request
-from flask_apispec import marshal_with, use_kwargs
+from flask_apispec import marshal_with
 from flask_apispec.views import MethodResource
-from marshmallow import Schema, ValidationError, fields, validates
+from marshmallow import Schema, ValidationError, fields
 from sqlalchemy.exc import IntegrityError, OperationalError
-from sqlalchemy.orm.exc import UnmappedInstanceError
 
 from src.services.AmbienteService import getAmbientes, getAmbiente, addAmbiente, updateAmbiente, deleteAmbiente
+from src.exceptions import ResourceNotFoundError
+from src.controllers.responses import load_form, validation_error_response
 
 class AmbienteResponseSchema(Schema): # Transforma dict em json
     id = fields.Int()
@@ -21,49 +20,13 @@ class AmbienteResponseSchema(Schema): # Transforma dict em json
     data_cadastro = fields.DateTime()
 
 class AmbienteRequestSchema(Schema): # Transforma json em dict
-    id = fields.Int()
-    cliente = fields.Int()
-    oxigenio = fields.Float()
-    carbonico = fields.Float()
-    poluentes = fields.Float()
-    umidade = fields.Float()
-    densidade = fields.Float()
-    dados_publicos = fields.Bool()
-    data_cadastro = fields.DateTime()
-
-    @validates("id")
-    def validate_id(self, value):
-        if not re.match(pattern=r"^[0-9]+$", string=value):
-            raise ValidationError("Value must contain only numeric characters.")
-    @validates("cliente")
-    def validate_cliente(self, value):
-        if not re.match(pattern=r"^[0-9]+$", string=value):
-            raise ValidationError("Value must contain only numeric characters.")
-    @validates("oxigenio")
-    def validate_oxigenio(self, value):
-        if not re.match(pattern=r"^[0-9]+(\.[0-9]+)?$", string=value):
-            raise ValidationError("Value must be a valid decimal number.")
-    @validates("carbonico")
-    def validate_carbonico(self, value):
-        if not re.match(pattern=r"^[0-9]+(\.[0-9]+)?$", string=value):
-            raise ValidationError("Value must be a valid decimal number.")
-    @validates("poluentes")
-    def validate_poluentes(self, value):
-        if not re.match(pattern=r"^[0-9]+(\.[0-9]+)?$", string=value):
-            raise ValidationError("Value must be a valid decimal number.")
-    @validates("umidade")
-    def validate_umidade(self, value):
-        if not re.match(pattern=r"^[0-9]+(\.[0-9]+)?$", string=value):
-            raise ValidationError("Value must be a valid decimal number.")
-    @validates("densidade")
-    def validate_densidade(self, value):
-        if not re.match(pattern=r"^[0-9]+(\.[0-9]+)?$", string=value):
-            raise ValidationError("Value must be a valid decimal number.")
-    @validates("dados_publicos")
-    def validate_dados_publicos(self, value):
-        if not isinstance(value, bool):
-            raise ValidationError("Value must be a boolean.")
-    
+    cliente = fields.Int(required=True)
+    oxigenio = fields.Float(required=True)
+    carbonico = fields.Float(required=True)
+    poluentes = fields.Float(required=True)
+    umidade = fields.Float(required=True)
+    densidade = fields.Float(required=True)
+    dados_publicos = fields.Bool(required=True)
 
 class AmbienteItem(MethodResource, Resource):
     @marshal_with(AmbienteResponseSchema)
@@ -72,21 +35,25 @@ class AmbienteItem(MethodResource, Resource):
             # Camada de serviço para obter um ambiente
             ambiente = getAmbiente(ambiente_id)
             if not ambiente:
-                abort(404, message="Resource not found")
+                abort(404, message="Ambiente não encontrado.")
             return ambiente, 200
         except OperationalError:
             abort(500, message="Internal Server Error")
 
-    @use_kwargs(AmbienteRequestSchema, location=("form"))
-    @marshal_with(AmbienteResponseSchema)
-    def put(self, ambiente_id, **kwargs):
+    def put(self, ambiente_id):
+        kwargs, error_response = load_form(AmbienteRequestSchema, request.form)
+        if error_response:
+            return error_response
         try:
-            # Camada de serviço para atualizar um ambiente
             kwargs["cliente_id"] = kwargs.pop("cliente")
             ambiente = updateAmbiente(id=ambiente_id, **kwargs)
-            return ambiente, 201
+            return AmbienteResponseSchema().dump(ambiente), 201
+        except ValidationError as err:
+            return validation_error_response(err)
+        except ResourceNotFoundError as err:
+            return {"message": str(err)}, 404
         except IntegrityError as err:
-            abort(500, message=str(err.__context__))
+            abort(409, message=str(err.__context__))
         except OperationalError as err:
             abort(500, message=str(err.__context__))
         #finally:
@@ -99,6 +66,10 @@ class AmbienteItem(MethodResource, Resource):
             if not ambiente:
                 abort(404, message="Resource not found")
             return 204
+        except ResourceNotFoundError as err:
+            return {"message": str(err)}, 404
+        except IntegrityError as err:
+            abort(409, message=str(err.__context__))
         except OperationalError:
             abort(500, message="Internal Server Error")
 
@@ -112,15 +83,17 @@ class AmbienteList(MethodResource, Resource):
         except OperationalError:
             abort(500, message="Internal Server Error")
 
-    @use_kwargs(AmbienteRequestSchema, location=("form"))
-    @marshal_with(AmbienteResponseSchema)
-    def post(self, **kwargs):
+    def post(self):
+        kwargs, error_response = load_form(AmbienteRequestSchema, request.form)
+        if error_response:
+            return error_response
         try:
-            # Camada de serviço para inserir um ambiente
             kwargs["cliente_id"] = kwargs.pop("cliente")
             ambiente = addAmbiente(**kwargs)
-            return ambiente, 201
+            return AmbienteResponseSchema().dump(ambiente), 201
+        except ValidationError as err:
+            return validation_error_response(err)
         except IntegrityError as err:
-            abort(500, message=str(err.__context__))
+            abort(409, message=str(err.__context__))
         except OperationalError as err:
             abort(500, message=str(err.__context__))

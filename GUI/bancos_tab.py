@@ -4,8 +4,10 @@ import requests
 
 if __package__:
     from .api_urls import API_URL_BANCO
+    from .api_errors import format_api_error
 else:
     from api_urls import API_URL_BANCO
+    from api_errors import format_api_error
 
 
 class BancosTab:
@@ -167,7 +169,7 @@ class BancosTab:
                 self.entry_senha.insert(0, data.get("senha", ""))
 
             else:
-                messagebox.showerror("Erro", "Banco não encontrado")
+                messagebox.showerror("Erro", format_api_error(response, "buscar banco"))
 
         except Exception as e:
             messagebox.showerror("Erro", str(e))
@@ -187,7 +189,7 @@ class BancosTab:
                 messagebox.showinfo("Sucesso", "Banco cadastrado com sucesso")
                 self.load_bancos()
             else:
-                messagebox.showerror("Erro", "Cadastro nao sucedido")
+                messagebox.showerror("Erro", format_api_error(response, "cadastrar banco"))
 
         except Exception as e:
             messagebox.showerror("Erro", str(e))
@@ -226,7 +228,7 @@ class BancosTab:
                 messagebox.showinfo("Sucesso", "Banco atualizado com sucesso")
                 self.load_bancos()
             else:
-                messagebox.showerror("Erro", response.text)
+                messagebox.showerror("Erro", format_api_error(response, "atualizar banco"))
 
         except Exception as e:
             messagebox.showerror("Erro", str(e))
@@ -260,11 +262,11 @@ class BancosTab:
         try:
             response = requests.delete(f"{API_URL_BANCO}/{id_banco}")
 
-            if response.status_code == 200:
+            if response.status_code in [200, 204]:
                 messagebox.showinfo("Sucesso", "Banco removido com sucesso")
                 self.load_bancos()
             else:
-                messagebox.showerror("Erro", response.text)
+                messagebox.showerror("Erro", format_api_error(response, "remover banco"))
 
         except Exception as e:
             messagebox.showerror("Erro", str(e))

@@ -4,8 +4,10 @@ import requests
 
 if __package__:
     from .api_urls import API_URL_CLIENTE
+    from .api_errors import format_api_error
 else:
     from api_urls import API_URL_CLIENTE
+    from api_errors import format_api_error
 
 
 class ClientesTab:
@@ -192,7 +194,7 @@ class ClientesTab:
                 self.entry_data_cadastro_cliente.insert(0, data.get("data_cadastro", ""))
 
             else:
-                messagebox.showerror("Erro", "Cliente não encontrado")
+                messagebox.showerror("Erro", format_api_error(response, "buscar cliente"))
 
         except Exception as e:
             messagebox.showerror("Erro", str(e))
@@ -214,7 +216,7 @@ class ClientesTab:
                 messagebox.showinfo("Sucesso", "Cliente cadastrado com sucesso")
                 self.load_clients()
             else:
-                messagebox.showerror("Erro", "Cadastro nao sucedido")
+                messagebox.showerror("Erro", format_api_error(response, "cadastrar cliente"))
 
         except Exception as e:
             messagebox.showerror("Erro", str(e))
@@ -238,7 +240,7 @@ class ClientesTab:
                 messagebox.showinfo("Sucesso", "Cliente atualizado com sucesso")
                 self.load_clients()
             else:
-                messagebox.showerror("Erro", "Cliente não encontrado")
+                messagebox.showerror("Erro", format_api_error(response, "atualizar cliente"))
 
         except Exception as e:
             messagebox.showerror("Erro", str(e))
@@ -270,11 +272,11 @@ class ClientesTab:
         try:
             response = requests.delete(f"{API_URL_CLIENTE}/{cliente_id}")
 
-            if response.status_code == 200:
+            if response.status_code in [200, 204]:
                 messagebox.showinfo("Sucesso", "Cliente removido com sucesso")
                 self.load_clients()
             else:
-                messagebox.showerror("Erro", "Cliente não encontrado")
+                messagebox.showerror("Erro", format_api_error(response, "remover cliente"))
 
         except Exception as e:
             messagebox.showerror("Erro", str(e))

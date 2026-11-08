@@ -1,6 +1,6 @@
-from datetime import date
 from src.entities.ambiente_tempo import Ambiente_Tempo
 from src.entities.base import db
+from src.exceptions import ResourceNotFoundError
 
 def get_lista_ambiente_tempos():
     ambiente_tempos = db.session.query(Ambiente_Tempo).all()
@@ -19,9 +19,8 @@ def add_ambiente_tempo(ambiente_id: int, oxigenio: float, carbonico: float, polu
 
 def update_ambiente_tempo(id: int, ambiente_id: int, oxigenio: float, carbonico: float, poluentes: float, umidade: float, densidade: float) -> Ambiente_Tempo:
     ambiente_tempo = db.session.query(Ambiente_Tempo).get(id)
-    # Verifica se o ambiente existe
     if(not ambiente_tempo):
-        raise Exception
+        raise ResourceNotFoundError("Tempo de ambiente não encontrado.")
 
     ambiente_tempo.id_ambiente = ambiente_id
     ambiente_tempo.oxigenio = oxigenio
@@ -35,6 +34,8 @@ def update_ambiente_tempo(id: int, ambiente_id: int, oxigenio: float, carbonico:
 
 def delete_ambiente_tempo(ambiente_tempo_id):
     ambiente_tempo = db.session.query(Ambiente_Tempo).get(ambiente_tempo_id)
+    if not ambiente_tempo:
+        raise ResourceNotFoundError("Tempo de ambiente não encontrado.")
     db.session.delete(ambiente_tempo)
     db.session.commit()
     return ambiente_tempo

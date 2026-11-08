@@ -4,8 +4,10 @@ import requests
 
 if __package__:
     from .api_urls import API_URL_AMBIENTE_TEMPO
+    from .api_errors import format_api_error
 else:
     from api_urls import API_URL_AMBIENTE_TEMPO
+    from api_errors import format_api_error
 
 
 class AmbienteTempoTab:
@@ -204,7 +206,7 @@ class AmbienteTempoTab:
                 self.entry_data_cadastro_ambiente_tempo.insert(0, data.get("data_cadastro", ""))
 
             else:
-                messagebox.showerror("Erro", "Ambiente Tempo não encontrado")
+                messagebox.showerror("Erro", format_api_error(response, "buscar tempo do ambiente"))
 
         except Exception as e:
             messagebox.showerror("Erro", str(e))
@@ -242,7 +244,7 @@ class AmbienteTempoTab:
                 messagebox.showinfo("Sucesso", "Ambiente Tempo cadastrado com sucesso")
                 self.load_ambiente_tempo()
             else:
-                messagebox.showerror("Erro", "Cadastro nao sucedido")
+                messagebox.showerror("Erro", format_api_error(response, "cadastrar tempo do ambiente"))
 
         except Exception as e:
             messagebox.showerror("Erro", str(e))
@@ -283,7 +285,7 @@ class AmbienteTempoTab:
                 messagebox.showinfo("Sucesso", "Ambiente Tempo atualizado com sucesso")
                 self.load_ambiente_tempo()
             else:
-                messagebox.showerror("Erro", response.text)
+                messagebox.showerror("Erro", format_api_error(response, "atualizar tempo do ambiente"))
 
         except Exception as e:
             messagebox.showerror("Erro", str(e))
@@ -311,12 +313,12 @@ class AmbienteTempoTab:
         try:
             response = requests.delete(f"{API_URL_AMBIENTE_TEMPO}/{ambiente_tempo_id}")
 
-            if response.status_code == 200:
+            if response.status_code in [200, 204]:
                 messagebox.showinfo("Sucesso", "Ambiente Tempo removido com sucesso")
                 self.clear_fields_ambiente_tempo()
                 self.load_ambiente_tempo()
             else:
-                messagebox.showerror("Erro", response.text)
+                messagebox.showerror("Erro", format_api_error(response, "remover tempo do ambiente"))
 
         except Exception as e:
             messagebox.showerror("Erro", str(e))

@@ -1,6 +1,7 @@
 from datetime import date
 from src.entities.cliente import Cliente
 from src.entities.base import db
+from src.exceptions import ResourceNotFoundError
 
 def get_lista_clientes():
     clientes = db.session.query(Cliente).all()
@@ -19,9 +20,8 @@ def add_cliente(nome: str, cpf: str, email: str, telefone: str, dados_publicos: 
 
 def update_cliente(id: int, nome: str, cpf: str, email: str, telefone: str, dados_publicos: bool, data_nascimento: date) -> Cliente:
     cliente = db.session.query(Cliente).get(id)
-    # Verifica se o cliente existe
     if(not cliente):
-        raise Exception
+        raise ResourceNotFoundError("Cliente não encontrado.")
 
     cliente.nome = nome
     cliente.cpf = cpf
@@ -35,6 +35,8 @@ def update_cliente(id: int, nome: str, cpf: str, email: str, telefone: str, dado
 
 def delete_cliente(cliente_id):
     cliente = db.session.query(Cliente).get(cliente_id)
+    if not cliente:
+        raise ResourceNotFoundError("Cliente não encontrado.")
     db.session.delete(cliente)
     db.session.commit()
     return cliente

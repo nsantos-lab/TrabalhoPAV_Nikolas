@@ -1,13 +1,14 @@
 import re
 
 from flask_restful import Resource, abort, request
-from flask_apispec import marshal_with, use_kwargs
+from flask_apispec import marshal_with
 from flask_apispec.views import MethodResource
 from marshmallow import Schema, ValidationError, fields, validates
 from sqlalchemy.exc import IntegrityError, OperationalError
-from sqlalchemy.orm.exc import UnmappedInstanceError
 
 from src.services.ProdutoService import getProdutos, getProduto, addProduto, updateProduto, deleteProduto
+from src.exceptions import ResourceNotFoundError
+from src.controllers.responses import load_form, validation_error_response
 
 class ProdutoResponseSchema(Schema): # Transforma dict em json
     id = fields.Int()
@@ -17,32 +18,19 @@ class ProdutoResponseSchema(Schema): # Transforma dict em json
     potencia = fields.Float()
 
 class ProdutoRequestSchema(Schema): # Transforma json em dict
-    id = fields.Int()
-    id_ambiente = fields.Int()
-    tipo = fields.Str()
-    preco = fields.Float()
-    potencia = fields.Float()
+    id_ambiente = fields.Int(required=True)
+    tipo = fields.Str(required=True)
+    preco = fields.Float(required=True)
+    potencia = fields.Float(required=True)
 
-    @validates("id")
-    def validate_id(self, value):
-        if not re.match(pattern=r"^[0-9]+$", string=value):
-            raise ValidationError("Value must contain only numeric characters.")
     @validates("id_ambiente")
     def validate_id_ambiente(self, value):
-        if not re.match(pattern=r"^[0-9]+$", string=value):
-            raise ValidationError("Value must contain only numeric characters.")
+        if value < 0:
+            raise ValidationError("Ambiente ID must not be negative.")
     @validates("tipo")
     def validate_tipo(self, value):
-        if not re.match(pattern=r"^[A-Z]{3}$", string=value):
-            raise ValidationError("Value must contain only 3 uppercase letters.")
-    @validates("preco")
-    def validate_preco(self, value):
-        if not re.match(pattern=r"^[0-9]+(\.[0-9]+)?$", string=value):
-            raise ValidationError("Value must be a valid decimal number.")
-    @validates("potencia")
-    def validate_potencia(self, value):
-        if not re.match(pattern=r"^[0-9]+(\.[0-9]+)?$", string=value):
-            raise ValidationError("Value must be a valid decimal number.")
+        if not re.fullmatch(r"[A-Z]{3}", value):
+            raise ValidationError("Tipo must contain exactly 3 uppercase letters.")
 
 class ProdutoItem(MethodResource, Resource):
     @marshal_with(ProdutoResponseSchema)
@@ -51,20 +39,24 @@ class ProdutoItem(MethodResource, Resource):
             # Camada de serviço para obter um produto
             produto = getProduto(produto_id)
             if not produto:
-                abort(404, message="Resource not found")
+                abort(404, message="Produto não encontrado.")
             return produto, 200
         except OperationalError:
             abort(500, message="Internal Server Error")
 
-    @use_kwargs(ProdutoRequestSchema, location=("form"))
-    @marshal_with(ProdutoResponseSchema)
-    def put(self, produto_id, **kwargs):
+    def put(self, produto_id):
+        kwargs, error_response = load_form(ProdutoRequestSchema, request.form)
+        if error_response:
+            return error_response
         try:
-            # Camada de serviço para atualizar um produto
             produto = updateProduto(id=produto_id, **kwargs)
-            return produto, 201
+            return ProdutoResponseSchema().dump(produto), 201
+        except ValidationError as err:
+            return validation_error_response(err)
+        except ResourceNotFoundError as err:
+            return {"message": str(err)}, 404
         except IntegrityError as err:
-            abort(500, message=str(err.__context__))
+            abort(409, message=str(err.__context__))
         except OperationalError as err:
             abort(500, message=str(err.__context__))
         #finally:
@@ -77,6 +69,10 @@ class ProdutoItem(MethodResource, Resource):
             if not produto:
                 abort(404, message="Resource not found")
             return 204
+        except ResourceNotFoundError as err:
+            return {"message": str(err)}, 404
+        except IntegrityError as err:
+            abort(409, message=str(err.__context__))
         except OperationalError:
             abort(500, message="Internal Server Error")
 
@@ -90,14 +86,16 @@ class ProdutoList(MethodResource, Resource):
         except OperationalError:
             abort(500, message="Internal Server Error")
 
-    @use_kwargs(ProdutoRequestSchema, location=("form"))
-    @marshal_with(ProdutoResponseSchema)
-    def post(self, **kwargs):
+    def post(self):
+        kwargs, error_response = load_form(ProdutoRequestSchema, request.form)
+        if error_response:
+            return error_response
         try:
-            # Camada de serviço para inserir um produto
             produto = addProduto(**kwargs)
-            return produto, 201
+            return ProdutoResponseSchema().dump(produto), 201
+        except ValidationError as err:
+            return validation_error_response(err)
         except IntegrityError as err:
-            abort(500, message=str(err.__context__))
+            abort(409, message=str(err.__context__))
         except OperationalError as err:
             abort(500, message=str(err.__context__))

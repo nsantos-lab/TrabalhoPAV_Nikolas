@@ -1,6 +1,6 @@
-from datetime import date
 from src.entities.banco import Banco
 from src.entities.base import db
+from src.exceptions import ResourceNotFoundError
 
 def get_lista_bancos():
     bancos = db.session.query(Banco).all()
@@ -19,9 +19,8 @@ def add_banco(id_cliente: int, dinheiro: float, senha: str):
 
 def update_banco(id_banco: int, id_cliente: int, dinheiro: float, senha: str) -> Banco:
     banco = db.session.query(Banco).get(id_banco)
-    # Verifica se o cliente existe
     if(not banco):
-        raise Exception
+        raise ResourceNotFoundError("Banco não encontrado.")
 
     banco.id_cliente = id_cliente
     banco.dinheiro = dinheiro
@@ -32,6 +31,8 @@ def update_banco(id_banco: int, id_cliente: int, dinheiro: float, senha: str) ->
 
 def delete_banco(id_banco):
     banco = db.session.query(Banco).get(id_banco)
+    if not banco:
+        raise ResourceNotFoundError("Banco não encontrado.")
     db.session.delete(banco)
     db.session.commit()
     return banco
