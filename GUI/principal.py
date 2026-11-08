@@ -19,7 +19,6 @@ else:
     from api_urls import API_URL_AMBIENTE, API_URL_AMBIENTE_TEMPO, API_URL_BANCO, API_URL_BANCO_BY_CLIENTE, API_URL_CLIENTE, API_URL_PRODUTO
     
 
-
 class AcademicSystemApp(ClientesTab, BancosTab, AmbientesTab, AmbienteTempoTab, ProdutosTab):
     def __init__(self, root):
 
