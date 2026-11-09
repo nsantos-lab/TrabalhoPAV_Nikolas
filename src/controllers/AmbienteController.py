@@ -15,7 +15,7 @@ class AmbienteResponseSchema(Schema): # Transforma dict em json
     carbonico = fields.Float()
     poluentes = fields.Float()
     umidade = fields.Float()
-    densidade = fields.Float()
+    temperatura = fields.Float()
     dados_publicos = fields.Bool()
     data_cadastro = fields.DateTime()
 
@@ -25,7 +25,7 @@ class AmbienteRequestSchema(Schema): # Transforma json em dict
     carbonico = fields.Float(required=True)
     poluentes = fields.Float(required=True)
     umidade = fields.Float(required=True)
-    densidade = fields.Float(required=True)
+    temperatura = fields.Float(required=True)
     dados_publicos = fields.Bool(required=True)
 
 class AmbienteItem(MethodResource, Resource):

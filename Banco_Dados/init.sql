@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS ambiente (
     ar_carbonico DECIMAL(7,3) NOT NULL,
     ar_poluentes DECIMAL(7,3) NOT NULL,
     ar_umidade DECIMAL(7,3) NOT NULL,
-    ar_densidade DECIMAL(7,3) NOT NULL,
+    ar_temperatura DECIMAL(7,3) NOT NULL,
     dados_publicos BOOLEAN DEFAULT false,
     data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_pedido_cliente
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS ambiente_tempo (
   ar_carbonico decimal(7,3) NOT NULL,
   ar_poluentes decimal(7,3) NOT NULL,
   ar_umidade decimal(7,3) NOT NULL,
-  ar_densidade decimal(7,3) NOT NULL,
+  ar_temperatura decimal(7,3) NOT NULL,
   data_cadastro timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id_ambiente_tempo),
   KEY fk_ambiente_tempo (id_ambiente),
@@ -71,8 +71,8 @@ CREATE TABLE IF NOT EXISTS produto (
 DELIMITER $$
 CREATE PROCEDURE IF NOT EXISTS SalvarDadosAmbiente() 
 BEGIN
-	INSERT INTO ambiente_tempo (id_ambiente, ar_oxigenio, ar_carbonico, ar_poluentes, ar_umidade, ar_densidade)
-	SELECT id_ambiente, ar_oxigenio, ar_carbonico, ar_poluentes, ar_umidade, ar_densidade
+	INSERT INTO ambiente_tempo (id_ambiente, ar_oxigenio, ar_carbonico, ar_poluentes, ar_umidade, ar_temperatura)
+	SELECT id_ambiente, ar_oxigenio, ar_carbonico, ar_poluentes, ar_umidade, ar_temperatura
 	FROM ambiente;
 END$$
 DELIMITER ;

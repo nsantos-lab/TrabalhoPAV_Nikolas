@@ -11,7 +11,7 @@ def getAmbientes():
 def getAmbiente(ambiente_id):
     return get_ambiente(ambiente_id)
 
-def _validar_ambiente(cliente_id, oxigenio, carbonico, poluentes, umidade, densidade, dados_publicos):
+def _validar_ambiente(cliente_id, oxigenio, carbonico, poluentes, umidade, temperatura, dados_publicos):
     if cliente_id is None or cliente_id < 0:
         raise ValidationError({"cliente": "Cliente ID must not be null or negative."})
     for field, value in {
@@ -19,21 +19,24 @@ def _validar_ambiente(cliente_id, oxigenio, carbonico, poluentes, umidade, densi
         "carbonico": carbonico,
         "poluentes": poluentes,
         "umidade": umidade,
-        "densidade": densidade,
     }.items():
         if value is None or not isfinite(value) or value < 0:
             raise ValidationError({field: f"{field.capitalize()} must be a finite, non-negative number."})
+    if temperatura is None:
+        raise ValidationError({"temperatura": "Temperatura must not be null."})
+    if temperatura > 200.0 or temperatura < -273.15:
+        raise ValidationError({"temperatura": "Temperatura must not be lower than -273.15 or higher than 200.0."})
     if dados_publicos is None:
         raise ValidationError({"dados_publicos": "Dados públicos must not be null."})
 
-def addAmbiente(cliente_id: int, oxigenio: float, carbonico: float, poluentes: float, umidade: float, densidade: float, dados_publicos: bool) -> Ambiente:
-    _validar_ambiente(cliente_id, oxigenio, carbonico, poluentes, umidade, densidade, dados_publicos)
+def addAmbiente(cliente_id: int, oxigenio: float, carbonico: float, poluentes: float, umidade: float, temperatura: float, dados_publicos: bool) -> Ambiente:
+    _validar_ambiente(cliente_id, oxigenio, carbonico, poluentes, umidade, temperatura, dados_publicos)
 
-    return add_ambiente(cliente_id, oxigenio, carbonico, poluentes, umidade, densidade, dados_publicos)
+    return add_ambiente(cliente_id, oxigenio, carbonico, poluentes, umidade, temperatura, dados_publicos)
 
-def updateAmbiente(id: int, cliente_id: int, oxigenio: float, carbonico: float, poluentes: float, umidade: float, densidade: float, dados_publicos: bool):
-    _validar_ambiente(cliente_id, oxigenio, carbonico, poluentes, umidade, densidade, dados_publicos)
-    return update_ambiente(id=id, cliente_id=cliente_id, oxigenio=oxigenio, carbonico=carbonico, poluentes=poluentes, umidade=umidade, densidade=densidade, dados_publicos=dados_publicos)
+def updateAmbiente(id: int, cliente_id: int, oxigenio: float, carbonico: float, poluentes: float, umidade: float, temperatura: float, dados_publicos: bool):
+    _validar_ambiente(cliente_id, oxigenio, carbonico, poluentes, umidade, temperatura, dados_publicos)
+    return update_ambiente(id=id, cliente_id=cliente_id, oxigenio=oxigenio, carbonico=carbonico, poluentes=poluentes, umidade=umidade, temperatura=temperatura, dados_publicos=dados_publicos)
 
 def deleteAmbiente(ambiente_id):
     return delete_ambiente(ambiente_id)

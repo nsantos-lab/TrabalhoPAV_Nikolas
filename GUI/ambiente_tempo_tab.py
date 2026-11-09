@@ -46,8 +46,8 @@ class AmbienteTempoTab:
         # ===== UMIDADE =====
         self.entry_umidade_ambiente_tempo = self.criar_campo(form_frame_ambiente_tempo, "Umidade:", 1, 3)
 
-        # ===== DENSIDADE =====
-        self.entry_densidade_ambiente_tempo = self.criar_campo(form_frame_ambiente_tempo, "Densidade:", 2, 3)
+        # ===== TEMPERATURA =====
+        self.entry_temperatura_ambiente_tempo = self.criar_campo(form_frame_ambiente_tempo, "Temperatura:", 2, 3)
 
         # ===== DATA_CADASTRO =====
         self.entry_data_cadastro_ambiente_tempo = self.criar_campo(form_frame_ambiente_tempo, "Data Cadastro:", 3, 3)
@@ -109,7 +109,7 @@ class AmbienteTempoTab:
             fg="#2d3436"
         ).pack(anchor="w", pady=(0, 5))
 
-        columns = ("id", "ambiente", "oxigenio", "carbonico", "poluentes", "umidade", "densidade", "cadastro")
+        columns = ("id", "ambiente", "oxigenio", "carbonico", "poluentes", "umidade", "temperatura", "cadastro")
         self.ambiente_tempo_list = ttk.Treeview(
             ambiente_tempo_list_frame,
             columns=columns,
@@ -122,7 +122,7 @@ class AmbienteTempoTab:
         self.ambiente_tempo_list.heading("carbonico", text="Carbonico")
         self.ambiente_tempo_list.heading("poluentes", text="Poluente")
         self.ambiente_tempo_list.heading("umidade", text="Umidade")
-        self.ambiente_tempo_list.heading("densidade", text="Densidade")
+        self.ambiente_tempo_list.heading("temperatura", text="Temperatura")
         self.ambiente_tempo_list.heading("cadastro", text="Data de Cadastro")
 
 
@@ -132,7 +132,7 @@ class AmbienteTempoTab:
         self.ambiente_tempo_list.column("carbonico", width=70, minwidth=0, stretch=False, anchor="center")
         self.ambiente_tempo_list.column("poluentes", width=70, minwidth=0, stretch=False, anchor="center")
         self.ambiente_tempo_list.column("umidade", width=70, minwidth=0, stretch=False, anchor="center")
-        self.ambiente_tempo_list.column("densidade", width=70, minwidth=0, stretch=False, anchor="center")
+        self.ambiente_tempo_list.column("temperatura", width=70, minwidth=0, stretch=False, anchor="center")
         self.ambiente_tempo_list.column("cadastro", width=0, anchor="center")
         
         ambiente_tempo_scrollbar = tk.Scrollbar(
@@ -161,7 +161,7 @@ class AmbienteTempoTab:
         self.entry_carbonico_ambiente_tempo.delete(0, tk.END)
         self.entry_poluentes_ambiente_tempo.delete(0, tk.END)
         self.entry_umidade_ambiente_tempo.delete(0, tk.END)
-        self.entry_densidade_ambiente_tempo.delete(0, tk.END)
+        self.entry_temperatura_ambiente_tempo.delete(0, tk.END)
         self.entry_data_cadastro_ambiente_tempo.delete(0, tk.END)
 
     def call_api_get_ambiente_tempo(self):
@@ -200,8 +200,8 @@ class AmbienteTempoTab:
                 self.entry_poluentes_ambiente_tempo.insert(0, data.get("poluentes", ""))
                 self.entry_umidade_ambiente_tempo.delete(0, tk.END)
                 self.entry_umidade_ambiente_tempo.insert(0, data.get("umidade", ""))
-                self.entry_densidade_ambiente_tempo.delete(0, tk.END)
-                self.entry_densidade_ambiente_tempo.insert(0, data.get("densidade", ""))
+                self.entry_temperatura_ambiente_tempo.delete(0, tk.END)
+                self.entry_temperatura_ambiente_tempo.insert(0, data.get("temperatura", ""))
                 self.entry_data_cadastro_ambiente_tempo.delete(0, tk.END)
                 self.entry_data_cadastro_ambiente_tempo.insert(0, data.get("data_cadastro", ""))
 
@@ -238,7 +238,7 @@ class AmbienteTempoTab:
                 "carbonico": self.entry_carbonico_ambiente_tempo.get(),
                 "poluentes": self.entry_poluentes_ambiente_tempo.get(),
                 "umidade": self.entry_umidade_ambiente_tempo.get(),
-                "densidade": self.entry_densidade_ambiente_tempo.get()
+                "temperatura": self.entry_temperatura_ambiente_tempo.get()
             }
 
             response = requests.post(API_URL_AMBIENTE_TEMPO, data=data)
@@ -280,7 +280,7 @@ class AmbienteTempoTab:
                 "carbonico": self.entry_carbonico_ambiente_tempo.get(),
                 "poluentes": self.entry_poluentes_ambiente_tempo.get(),
                 "umidade": self.entry_umidade_ambiente_tempo.get(),
-                "densidade": self.entry_densidade_ambiente_tempo.get(),
+                "temperatura": self.entry_temperatura_ambiente_tempo.get(),
             }
 
             response = requests.put(f"{API_URL_AMBIENTE_TEMPO}/{ambiente_tempo_id}", data=data)
@@ -345,7 +345,7 @@ class AmbienteTempoTab:
                 carbonico = ambiente_tempo.get("carbonico")
                 poluentes = ambiente_tempo.get("poluentes")
                 umidade = ambiente_tempo.get("umidade")
-                densidade = ambiente_tempo.get("densidade")
+                temperatura = ambiente_tempo.get("temperatura")
                 data_cadastro = ambiente_tempo.get("data_cadastro")
 
                 cliente_id = self.get_cliente_ambiente(ambiente_id_ambiente)
@@ -359,7 +359,7 @@ class AmbienteTempoTab:
                     self.ambiente_tempo_list.insert(
                         "",
                         tk.END,
-                        values=(ambiente_tempo_id, ambiente_id_ambiente, oxigenio, carbonico, poluentes, umidade, densidade, data_cadastro)
+                        values=(ambiente_tempo_id, ambiente_id_ambiente, oxigenio, carbonico, poluentes, umidade, temperatura, data_cadastro)
                     )
         except (requests.RequestException, ValueError, KeyError) as error:
             messagebox.showerror("Erro", f"Não foi possível carregar os tempos dos ambientes: {error}")

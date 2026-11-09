@@ -46,8 +46,8 @@ class AmbientesTab:
         # ===== UMIDADE =====
         self.entry_umidade_ambiente = self.criar_campo(form_frame_ambiente, "Umidade:", 0, 3)
 
-        # ===== DENSIDADE =====
-        self.entry_densidade_ambiente = self.criar_campo(form_frame_ambiente, "Densidade:", 1, 3)
+        # ===== TEMPERATURA =====
+        self.entry_temperatura_ambiente = self.criar_campo(form_frame_ambiente, "Temperatura:", 1, 3)
 
         # ===== DADOS_PUBLICOS =====
         self.entry_dados_publicos_ambiente = self.criar_campo(form_frame_ambiente, "Dados Publicos:", 2, 3)
@@ -112,7 +112,7 @@ class AmbientesTab:
             fg="#2d3436"
         ).pack(anchor="w", pady=(0, 5))
 
-        columns = ("id", "cliente", "oxigenio", "carbonico", "poluentes", "umidade", "densidade", "publicos", "cadastro")
+        columns = ("id", "cliente", "oxigenio", "carbonico", "poluentes", "umidade", "temperatura", "publicos", "cadastro")
         self.ambiente_list = ttk.Treeview(
             ambiente_list_frame,
             columns=columns,
@@ -125,7 +125,7 @@ class AmbientesTab:
         self.ambiente_list.heading("carbonico", text="Carbonico")
         self.ambiente_list.heading("poluentes", text="Poluente")
         self.ambiente_list.heading("umidade", text="Umidade")
-        self.ambiente_list.heading("densidade", text="Densidade")
+        self.ambiente_list.heading("temperatura", text="Temperatura")
         self.ambiente_list.heading("publicos", text="Publico")
         self.ambiente_list.heading("cadastro", text="Data de Cadastro")
 
@@ -136,7 +136,7 @@ class AmbientesTab:
         self.ambiente_list.column("carbonico", width=70, minwidth=0, stretch=False, anchor="center")
         self.ambiente_list.column("poluentes", width=70, minwidth=0, stretch=False, anchor="center")
         self.ambiente_list.column("umidade", width=70, minwidth=0, stretch=False, anchor="center")
-        self.ambiente_list.column("densidade", width=70, minwidth=0, stretch=False, anchor="center")
+        self.ambiente_list.column("temperatura", width=70, minwidth=0, stretch=False, anchor="center")
         self.ambiente_list.column("publicos", width=60, minwidth=0, stretch=False, anchor="center")
         self.ambiente_list.column("cadastro", width=0, anchor="center")
         
@@ -166,7 +166,7 @@ class AmbientesTab:
         self.entry_carbonico_ambiente.delete(0, tk.END)
         self.entry_poluentes_ambiente.delete(0, tk.END)
         self.entry_umidade_ambiente.delete(0, tk.END)
-        self.entry_densidade_ambiente.delete(0, tk.END)
+        self.entry_temperatura_ambiente.delete(0, tk.END)
         self.entry_dados_publicos_ambiente.delete(0, tk.END)
         self.entry_data_cadastro_ambiente.delete(0, tk.END)
 
@@ -205,8 +205,8 @@ class AmbientesTab:
                 self.entry_poluentes_ambiente.insert(0, data.get("poluentes", ""))
                 self.entry_umidade_ambiente.delete(0, tk.END)
                 self.entry_umidade_ambiente.insert(0, data.get("umidade", ""))
-                self.entry_densidade_ambiente.delete(0, tk.END)
-                self.entry_densidade_ambiente.insert(0, data.get("densidade", ""))
+                self.entry_temperatura_ambiente.delete(0, tk.END)
+                self.entry_temperatura_ambiente.insert(0, data.get("temperatura", ""))
                 self.entry_dados_publicos_ambiente.delete(0, tk.END)
                 self.entry_dados_publicos_ambiente.insert(0, data.get("dados_publicos", ""))
                 self.entry_data_cadastro_ambiente.delete(0, tk.END)
@@ -248,7 +248,7 @@ class AmbientesTab:
                 "carbonico": self.entry_carbonico_ambiente.get(),
                 "poluentes": self.entry_poluentes_ambiente.get(),
                 "umidade": self.entry_umidade_ambiente.get(),
-                "densidade": self.entry_densidade_ambiente.get(),
+                "temperatura": self.entry_temperatura_ambiente.get(),
                 "dados_publicos": self.entry_dados_publicos_ambiente.get()
             }
             response = requests.post(API_URL_AMBIENTE, data=data)
@@ -301,7 +301,7 @@ class AmbientesTab:
                 "carbonico": self.entry_carbonico_ambiente.get(),
                 "poluentes": self.entry_poluentes_ambiente.get(),
                 "umidade": self.entry_umidade_ambiente.get(),
-                "densidade": self.entry_densidade_ambiente.get(),
+                "temperatura": self.entry_temperatura_ambiente.get(),
                 "dados_publicos": self.entry_dados_publicos_ambiente.get()
             }
 
@@ -371,7 +371,7 @@ class AmbientesTab:
                 carbonico = ambiente.get("carbonico")
                 poluentes = ambiente.get("poluentes")
                 umidade = ambiente.get("umidade")
-                densidade = ambiente.get("densidade")
+                temperatura = ambiente.get("temperatura")
                 dados_publicos = ambiente.get("dados_publicos")
                 data_cadastro = ambiente.get("data_cadastro")
 
@@ -385,7 +385,7 @@ class AmbientesTab:
                     self.ambiente_list.insert(
                         "",
                         tk.END,
-                        values=(ambiente_id, cliente_id_ambiente, oxigenio, carbonico, poluentes, umidade, densidade, dados_publicos, data_cadastro)
+                        values=(ambiente_id, cliente_id_ambiente, oxigenio, carbonico, poluentes, umidade, temperatura, dados_publicos, data_cadastro)
                     )
         except (requests.RequestException, ValueError, KeyError) as error:
             messagebox.showerror("Erro", f"Não foi possível carregar os ambientes: {error}")

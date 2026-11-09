@@ -10,14 +10,14 @@ def get_ambiente(ambiente_id):
     ambiente = db.session.query(Ambiente).get(ambiente_id)
     return ambiente
 
-def add_ambiente(cliente_id: int, oxigenio: float, carbonico: float, poluentes: float, umidade: float, densidade: float, dados_publicos: bool):
-    ambiente = Ambiente(cliente=cliente_id, oxigenio=oxigenio, carbonico=carbonico, poluentes=poluentes, umidade=umidade, densidade=densidade, dados_publicos=dados_publicos)
-    # INSERT INTO Ambiente values (cliente, oxigenio, carbonico, poluentes, umidade, densidade, dados_publicos)
+def add_ambiente(cliente_id: int, oxigenio: float, carbonico: float, poluentes: float, umidade: float, temperatura: float, dados_publicos: bool):
+    ambiente = Ambiente(cliente=cliente_id, oxigenio=oxigenio, carbonico=carbonico, poluentes=poluentes, umidade=umidade, temperatura=temperatura, dados_publicos=dados_publicos)
+    # INSERT INTO Ambiente values (cliente, oxigenio, carbonico, poluentes, umidade, temperatura, dados_publicos)
     db.session.add(ambiente)
     db.session.commit()
     return ambiente
 
-def update_ambiente(id: int, cliente_id: int, oxigenio: float, carbonico: float, poluentes: float, umidade: float, densidade: float, dados_publicos: bool) -> Ambiente:
+def update_ambiente(id: int, cliente_id: int, oxigenio: float, carbonico: float, poluentes: float, umidade: float, temperatura: float, dados_publicos: bool) -> Ambiente:
     ambiente = db.session.query(Ambiente).get(id)
     if(not ambiente):
         raise ResourceNotFoundError("Ambiente não encontrado.")
@@ -27,7 +27,7 @@ def update_ambiente(id: int, cliente_id: int, oxigenio: float, carbonico: float,
     ambiente.carbonico = carbonico
     ambiente.poluentes = poluentes
     ambiente.umidade = umidade
-    ambiente.densidade = densidade
+    ambiente.temperatura = temperatura
     ambiente.dados_publicos = dados_publicos
 
     db.session.commit()
