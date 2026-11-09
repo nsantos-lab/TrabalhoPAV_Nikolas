@@ -1,0 +1,44 @@
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+
+janela = tk.Tk()
+janela.title("Gráfico com Múltiplas Linhas")
+janela.geometry("550x420")
+
+# Dados do eixo X (meses)
+meses = ["Jan", "Fev", "Mar", "Abr"]
+
+# Dados das 3 linhas (eixo Y)
+vendas_loja_a = [10, 25, 18, 30]
+vendas_loja_b = [15, 20, 28, 35]
+vendas_loja_c = [8, 12, 15, 22]
+
+# Criando a figura e os eixos
+fig = Figure(figsize=(5, 4))
+ax = fig.add_subplot(111)
+
+# Adicionando cada linha separadamente
+ax.plot(meses, vendas_loja_a, marker="o", color="blue", label="Loja A")
+ax.plot(meses, vendas_loja_b, marker="s", color="green", label="Loja B")
+ax.plot(
+    meses,
+    vendas_loja_c,
+    marker="^",
+    color="red",
+    linestyle="--",
+    label="Loja C",
+)
+
+# Configurações visuais
+ax.set_title("Comparativo de Vendas por Loja")
+ax.set_ylabel("Quantidade Vendida")
+ax.grid(True, linestyle=":", alpha=0.6)  # Adiciona uma grade leve ao fundo
+ax.legend()  # Exibe a caixinha identificando cada linha
+
+# Integrando ao Tkinter
+canvas = FigureCanvasTkAgg(fig, master=janela)
+canvas.draw()
+canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+janela.mainloop()

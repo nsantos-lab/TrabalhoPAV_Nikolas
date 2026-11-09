@@ -8,6 +8,7 @@ if __package__:
     from .bancos_tab import BancosTab
     from .clientes_tab import ClientesTab
     from .produtos_tab import ProdutosTab
+    from .ambiente_tempo_graph_tab import AmbienteTempoGraphTab
     from .api_urls import API_URL_AMBIENTE, API_URL_AMBIENTE_TEMPO, API_URL_BANCO, API_URL_BANCO_BY_CLIENTE, API_URL_CLIENTE, API_URL_PRODUTO
     
 else:
@@ -16,10 +17,11 @@ else:
     from bancos_tab import BancosTab
     from clientes_tab import ClientesTab
     from produtos_tab import ProdutosTab
+    from ambiente_tempo_graph_tab import AmbienteTempoGraphTab
     from api_urls import API_URL_AMBIENTE, API_URL_AMBIENTE_TEMPO, API_URL_BANCO, API_URL_BANCO_BY_CLIENTE, API_URL_CLIENTE, API_URL_PRODUTO
     
 
-class AcademicSystemApp(ClientesTab, BancosTab, AmbientesTab, AmbienteTempoTab, ProdutosTab):
+class AcademicSystemApp(ClientesTab, BancosTab, AmbientesTab, AmbienteTempoTab, ProdutosTab, AmbienteTempoGraphTab):
     def __init__(self, root):
 
         self.root = root
@@ -52,6 +54,7 @@ class AcademicSystemApp(ClientesTab, BancosTab, AmbientesTab, AmbienteTempoTab, 
         self.build_ambientes_tab(notebook)
         self.build_produtos_tab(notebook)
         self.build_ambiente_tempo_tab(notebook)
+        self.build_ambiente_tempo_graph_tab(notebook)
 
     def create_button(self, parent, text, color, command):
 
