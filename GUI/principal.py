@@ -176,6 +176,20 @@ class AcademicSystemApp(ClientesTab, BancosTab, AmbientesTab, AmbienteTempoTab, 
             messagebox.showerror("Erro", "Senha incorreta. Acesso negado.")
             return False
 
+    def dar_senha(self, banco_id, senha_digitada):
+        response1 = requests.get(f"{API_URL_BANCO}/{banco_id}",timeout=5)
+        if response1.status_code != 200:
+            messagebox.showerror("Erro", "Falha ao obter banco.")
+            return True
+        object1 = response1.json()
+        senha_correta = object1.get("senha")
+        if senha_digitada == senha_correta:
+            messagebox.showinfo("Sucesso", "Senha correta. Acesso permitido.")
+            return True
+        else:
+            messagebox.showerror("Erro", "Senha incorreta. Acesso negado.")
+            return False
+
     def validar_pagamento(self, banco_id, preco_produto):
         response2 = requests.get(f"{API_URL_BANCO}/{banco_id}",timeout=5)
         object2 = response2.json()

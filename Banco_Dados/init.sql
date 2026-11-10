@@ -87,11 +87,13 @@ BEGIN
         'RCA' = -0.1 carbono
 		'RPO' = -0.1 poluente
         'RUM' = -0.1 umidade
+        'RTE' = -0.1 temperatura
         
         'AOX' = +0.1 oxigenio
         'ACA' = +0.1 carbono
         'APO' = +0.1 poluente
         'AUM' = +0.1 umidade
+        'ATE' = +0.1 temperatura
         
 		'OPC' = -0.1 oxigenio, +0.1 carbono
         'CPO' = +0.1 oxigenio, -0.1 carbono
@@ -127,16 +129,23 @@ BEGIN
                 WHEN tipo = 'RUM' THEN -0.1
                 WHEN tipo = 'AUM' THEN +0.1
                 ELSE 0 
-            END) AS total_umidade
+            END) AS total_umidade,
+
+            SUM(CASE 
+                WHEN tipo = 'RTE' THEN -0.1
+                WHEN tipo = 'ATE' THEN +0.1
+                ELSE 0 
+            END) AS total_temperaturas
         FROM produto
         GROUP BY id_ambiente
     ) p ON a.id_ambiente = p.id_ambiente
     
     SET 
-		a.ar_oxigenio   = GREATEST(0, a.ar_oxigenio + p.total_oxigenio),
-        a.ar_carbonico  = GREATEST(0, a.ar_carbonico + p.total_carbonico),
-        a.ar_poluentes  = GREATEST(0, a.ar_poluentes + p.total_poluentes),
-        a.ar_umidade    = GREATEST(0, a.ar_umidade + p.total_umidade);
+		a.ar_oxigenio    = GREATEST(0, a.ar_oxigenio + p.total_oxigenio),
+        a.ar_carbonico   = GREATEST(0, a.ar_carbonico + p.total_carbonico),
+        a.ar_poluentes   = GREATEST(0, a.ar_poluentes + p.total_poluentes),
+        a.ar_umidade     = GREATEST(0, a.ar_umidade + p.total_umidade),
+        a.ar_temperatura = GREATEST(0, a.ar_temperatura + p.total_temperatura);
         
 	SET SQL_SAFE_UPDATES = 1;
 END$$

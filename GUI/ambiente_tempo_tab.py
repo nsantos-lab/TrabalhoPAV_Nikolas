@@ -152,7 +152,7 @@ class AmbienteTempoTab:
             self.load_ambiente_tempo
         ).pack(pady=(8, 15))
 
-        self.root.after(100, self.load_ambiente_tempo)
+        #self.root.after(100, self.load_ambiente_tempo)
 
     def clear_fields_ambiente_tempo(self):
         self.entry_id_ambiente_tempo.delete(0, tk.END)

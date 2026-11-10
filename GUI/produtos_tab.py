@@ -35,7 +35,21 @@ class ProdutosTab:
         self.entry_ambiente_produto = self.criar_campo(form_frame_produto, "Ambiente:", 1, 0)
 
         # ===== TIPO =====
-        self.entry_tipo = self.criar_campo(form_frame_produto, "Tipo:", 2, 0)
+        tk.Label(
+            form_frame_produto,
+            text="Tipo:",
+            font=("Segoe UI", 10, "bold"),
+            bg="#f5f6fa",
+            fg="#2d3436"
+        ).grid(row=2, column=0, sticky="w")
+        self.entry_tipo = ttk.Combobox(
+            form_frame_produto,
+            state="readonly",
+            values=("ROX", "RCA", "RPO", "RUM", "RTE", "AOX", "ACA", "APO", "AUM", "ATE", "OPC", "CPO"),
+            font=("Segoe UI", 10),
+            width=32
+        )
+        self.entry_tipo.grid(row=2, column=1, padx=20)
 
          # ===== PRECO =====
         self.entry_preco = self.criar_campo(form_frame_produto, "Preço:", 0, 3)
@@ -142,7 +156,7 @@ class ProdutosTab:
     def clear_fields_produto(self):
         self.entry_id_produto.delete(0, tk.END)
         self.entry_ambiente_produto.delete(0, tk.END)
-        self.entry_tipo.delete(0, tk.END)
+        self.entry_tipo.set("")
         self.entry_preco.delete(0, tk.END)
         self.entry_potencia.delete(0, tk.END)
 
@@ -176,8 +190,7 @@ class ProdutosTab:
 
                 self.entry_ambiente_produto.delete(0, tk.END)
                 self.entry_ambiente_produto.insert(0, data.get("id_ambiente", ""))
-                self.entry_tipo.delete(0, tk.END)
-                self.entry_tipo.insert(0, data.get("tipo", ""))
+                self.entry_tipo.set(data.get("tipo", ""))
                 self.entry_preco.delete(0, tk.END)
                 self.entry_preco.insert(0, data.get("preco", ""))
                 self.entry_potencia.delete(0, tk.END)

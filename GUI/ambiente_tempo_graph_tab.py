@@ -5,6 +5,7 @@ import requests
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.dates as mdates
 from matplotlib.figure import Figure
+from matplotlib.ticker import FormatStrFormatter
 
 
 if __package__:
@@ -36,20 +37,8 @@ class AmbienteTempoGraphTab:
         # ===== AMBIENTE =====
         self.entry_ambiente_ambiente_tempo = self.criar_campo(form_frame_ambiente_tempo, "Ambiente:", 0, 0)
 
-        # ===== OXIGENIO =====
-        self.entry_oxigenio_ambiente_tempo = self.criar_campo(form_frame_ambiente_tempo, "Oxigenio:", 1, 0)
-
-        # ===== CARBONICO =====
-        self.entry_carbonico_ambiente_tempo = self.criar_campo(form_frame_ambiente_tempo, "Carbonico:", 2, 0)
-
-        # ===== POLUENTES =====
-        self.entry_poluentes_ambiente_tempo = self.criar_campo(form_frame_ambiente_tempo, "Poluentes:", 0, 3)
-
-        # ===== UMIDADE =====
-        self.entry_umidade_ambiente_tempo = self.criar_campo(form_frame_ambiente_tempo, "Umidade:", 1, 3)
-
-        # ===== TEMPERATURA =====
-        self.entry_temperatura_ambiente_tempo = self.criar_campo(form_frame_ambiente_tempo, "Temperatura:", 2, 3)
+        # ==== SENHA ====
+        self.entry_senha_ambiente_tempo = self.criar_campo(form_frame_ambiente_tempo, "Senha:", 0, 3)
 
         # ===== BUTTON FRAME AMBIENTE_TEMPO=====
         button_frame_ambiente_tempo = tk.Frame(aba, bg="#f5f6fa")
@@ -60,7 +49,7 @@ class AmbienteTempoGraphTab:
             button_frame_ambiente_tempo,
             "Limpar",
             "#636e72",
-            self.clear_fields_ambiente_tempo
+            self.clear_graph_fields_ambiente_tempo
         ).grid(row=0, column=4, padx=0)
 
         # =========================== #
@@ -88,7 +77,7 @@ class AmbienteTempoGraphTab:
             aba,
             "Atualizar gráfico",
             "#00b894",
-            self.load_ambiente_tempo
+            self.load_ambiente_tempo_graph
         ).pack(pady=(8, 15))
         graph_frame.pack(padx=20, fill="both", expand=True)
         self.graph_figure = Figure(figsize=(7, 4))
@@ -100,9 +89,9 @@ class AmbienteTempoGraphTab:
 
         
 
-        self.root.after(100, self.load_ambiente_tempo)
+        #self.root.after(100, self.load_ambiente_tempo_graph)
 
-    def clear_fields_ambiente_tempo(self):
+    def clear_graph_fields_ambiente_tempo(self):
         self.entry_ambiente_ambiente_tempo.delete(0, tk.END)
         self.entry_oxigenio_ambiente_tempo.delete(0, tk.END)
         self.entry_carbonico_ambiente_tempo.delete(0, tk.END)
@@ -110,32 +99,44 @@ class AmbienteTempoGraphTab:
         self.entry_umidade_ambiente_tempo.delete(0, tk.END)
         self.entry_temperatura_ambiente_tempo.delete(0, tk.END)
 
-    def load_ambiente_tempo(self):
+    def load_ambiente_tempo_graph(self):
         try:
+            id_ambiente_text = self.entry_ambiente_ambiente_tempo.get().strip()
+            if not id_ambiente_text:
+                raise ValueError("Informe o ID do ambiente.")
+
+            id_ambiente_real = int(id_ambiente_text)
+            id_cliente = self.get_cliente_ambiente(id_ambiente_real)
+            id_banco = self.get_banco_cliente(id_cliente)
+            if id_cliente is None:
+                raise ValueError("Não foi possível encontrar o cliente do ambiente.")
+            if not id_banco is None:
+                if not self.cliente_publico(id_cliente) or not self.ambiente_publico(id_ambiente_real):
+                    senha_digitada = self.entry_senha_ambiente_tempo.get()
+                    if not self.dar_senha(id_banco, senha_digitada):
+                        return
+
             response = requests.get(API_URL_AMBIENTE_TEMPO, timeout=5)
             response.raise_for_status()
             ambiente_tempos = response.json()
             if not isinstance(ambiente_tempos, list):
                 raise ValueError("A resposta da API não contém uma lista de tempos de ambientes.")
 
-            public_measurements = []
+            measurements = []
             for ambiente_tempo in ambiente_tempos:
-                ambiente_id_ambiente = ambiente_tempo.get("ambiente")
-                data_cadastro = ambiente_tempo.get("data_cadastro")
-
-                cliente_id = self.get_cliente_ambiente(ambiente_id_ambiente)
-                if not self.cliente_publico(cliente_id) or not self.ambiente_publico(ambiente_id_ambiente):
+                if int(ambiente_tempo.get("ambiente", -1)) != id_ambiente_real:
                     continue
+
+                data_cadastro = ambiente_tempo.get("data_cadastro")
                 if not data_cadastro:
                     raise ValueError("Uma medição não possui data de cadastro.")
-
                 if isinstance(data_cadastro, str):
                     data_cadastro = datetime.fromisoformat(data_cadastro.replace("Z", "+00:00"))
 
-                public_measurements.append((data_cadastro, ambiente_tempo))
+                measurements.append((data_cadastro, ambiente_tempo))
 
             self.ambiente_tempos_publicos = sorted(
-                public_measurements,
+                measurements,
                 key=lambda measurement: measurement[0]
             )
             self.plot_ambiente_tempo()
@@ -161,17 +162,22 @@ class AmbienteTempoGraphTab:
                 float(measurement[1][metric_key])
                 for measurement in self.ambiente_tempos_publicos
             ]
-            self.graph_axes.plot(dates, values, marker="o", color="#0984e3")
+            self.graph_axes.plot(dates, values, marker="o", markersize=3, color="#0984e3")
             self.graph_axes.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m %H:%M"))
             self.graph_axes.tick_params(axis="x", labelrotation=30)
             self.graph_axes.set_ylabel(metric)
             self.graph_axes.grid(True, linestyle=":", alpha=0.6)
             self.graph_axes.set_title(f"{metric} ao longo do tempo")
+            self.graph_axes.yaxis.set_major_formatter(FormatStrFormatter("%.1f"))
+            if min(values) == max(values):
+                padding = max(abs(values[0]) * 0.1, 0.1)
+                self.graph_axes.set_ylim(values[0] - padding, values[0] + padding)
+                self.graph_axes.set_yticks([values[0]])
         else:
             self.graph_axes.text(
                 0.5,
                 0.5,
-                "Nenhuma medição pública disponível",
+                "Nenhuma medição encontrada para este ambiente",
                 ha="center",
                 va="center",
                 transform=self.graph_axes.transAxes

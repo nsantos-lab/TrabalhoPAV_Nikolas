@@ -27,3 +27,13 @@ canvas.get_widget_box = canvas.get_tk_widget().pack(
 )
 
 janela.mainloop()
+
+#else:
+#            self.graph_axes.text(
+#                0.5,
+#                0.5,
+#                "Nenhuma medição pública disponível",
+#                ha="center",
+#                va="center",
+#                transform=self.graph_axes.transAxes
+#            )
